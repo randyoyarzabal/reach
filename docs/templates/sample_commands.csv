@@ -1,0 +1,7 @@
+Command (Can use host file column $HF_#. For example: $HF_8 (use data from 8th column of hosts file),Show Output (-o) (Default = no),Local Command (Default=no),Expect (-w) String(s) ,Send (-p) String(s),Search (-d) String(s),Print Status (-r),Halt (-h) hosts loop when found Search String (Default = no)
+show configuration commands > $HF_9; ls -al,no,,,,total,Success,
+conf,no,,,,total,,
+save /home/randyo/$HF_9.boot,,,,,,,
+scp randyo@$HF_5:$HF_9 /Users/randyo/dev/sandbox/vga_backups/,,yes,,,,,
+scp randyo@$HF_5:$HF_9.boot /Users/randyo/dev/sandbox/vga_backups/$HF_8.boot,,yes,,,,,
+rm -rf  $HF_9 $HF_9.boot,,,,,,,

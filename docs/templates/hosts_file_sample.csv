@@ -1,0 +1,9 @@
+Location,Hostname,Type,IP Address,User,Password,Version,Comments,Backup File
+Dallas,host1.mydomain.com,Cisco Switch,10.25.1.10,randyo,YWUldXYMe2YpISU=,r. 5,,
+Dallas,host3.mydomain.com,Linux,10.25.1.11,root,YWUldXYMe2YpISUQ,r. 6,,
+Southbury,host5.mydomain.com,Vyatta,10.25.1.12,techno,YWUldXYMe2YpISUT,r. 7,,host5_config.txt
+Raleigh,host2.mydomain.com,Vyatta,10.25.1.13,root,YWUldXYMe2YpISUS,r. 8,,host2_config.txt
+Las Vegas,host4.mydomain.com,Cisco Firewall,10.25.1.14,tool_user,YWUldXYMe2YpISUQ,r. 9,,
+Las Vegas,host10.mydomain.com,Linux,10.25.1.15,randyo,YWUldXYMe2YpISUQ,r. 10,,
+Las Vegas,host8.mydomain.com,Linux,10.25.1.16,tool_user,YWUldXYMe2YpISUQ,r. 11,,
+Las Vegas,host6.mydomain.com,Linux,10.25.1.17,test_user,YWUldXYMe2YpISUQ,r. 12,,

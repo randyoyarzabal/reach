@@ -1,0 +1,14 @@
+Legend: + : added, - : removed, * : fixed
+
+https://github.com/randyoyarzabal/reach
+
+v1.0.1 [5-Dec-2016]:
+------------
++ Added prompt detection.
+* Fixed a bug where Vyatta (configuration mode) prompt change was not being detected.
+* Fixed "Host Duration" simulation display
+
+v1.0.0 [4-Dec-2016]:
+------------
++ Initial release.
+
