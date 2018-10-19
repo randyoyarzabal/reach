@@ -51,11 +51,11 @@ Synopsis:
     ./reach.py -v
     ./reach.py -a
     ./reach.py --cipher_text=<password>
-    ./reach.py -b commands_file [-x] [-g] ...
-    ./reach.py -c command [-d search_string [-r report_string]] [-w wait_string -p response_string] ...
+    ./reach.py -b commands_file [-x] [-d] ...
+    ./reach.py -c command [-s find_string [-r report_string]] [-w wait_string -p response_string] ...
 
     Optionally, for any mode:
-    ./reach.py [--config=<config_file>] [-i inventory_file] [-k column_key] [-x] [-g]
+    ./reach.py [--config=<config_file>] [-i inventory_file] [-k column_key] [-x] [-d]
 
 Help / Usage:
     -? : This help screen
@@ -68,18 +68,18 @@ Operation Modes:
 
 Optional for all modes:
     --config=<config_file> Override the default config.ini (located in the configs directory)
-    -x : Enable SIMULATION (no connection/commands invoked)
-    -g : Enable DEBUG
+    -x : SIMULATION Mode (no connection/commands invoked)
+    -d : DEBUG Mode
     -i <inventory_file> : Inventory (hosts) file (comma separated, define header key with -k)
       -k <key_column> : [Required with -i] Column header of keys
-    -e <condition> : Filter hosts to process. Operators are supported: = equal, ! not equal, | or, ~ contains, & and.
+    -f <filter> : Filter hosts to process. Operators are supported: = equal, ! not equal, | or, ~ contains, & and.
         Note: Reach does not support mixed (& and |) in this release yet.
         Example conditions: 'Build=WHC0122' , 'Build=WHC0122&Host~app, 'Build=WHC0122|Host~app|Host~dom'
 
 Optional for Command (-c) mode. Note that for Batch (-b) Mode, these are internally defined in the commands file.
     -o : Show command console output (ignored in batch (-b option) mode)
-    -s : Run command as root (run 'sudo su -' first), assumes no password needed
-    -h : Halt looping through hosts when first done string (-d) is found
+    -u : Run command as root (run 'sudo su -' first), supports password-less sudo only
+    -h : Halt looping through hosts when first done string (-s) is found
 
 Special modes:
     --cipher_text=<password> : return the password in cipher text to put in the password file
@@ -90,9 +90,9 @@ Special modes:
      --username=<ssh_user> : Force user string instead of what is configured.
      --password=<ssh_cipher-text password> : Force cipher-text password instead of what is configured.
      --private_key=<ssh_rsa_key> : Force private RSA key file instead of what is configured.
-     -d <search_string> : Search for string in output (For example: 'Complete' or 'Nothing|Complete')
+     -s <search_string> : Search string in output (For example: 'Complete' or 'Nothing|Complete')
         Can also use '$NF' to test for string is not found.
-        -r <report_string> : [Optional with same length as -d] Matching string to print to screen when -d match
+        -r <report_string> : [Optional with same length as -s] Matching string to print to screen when -s match
            For example: 'Installed|Not Installed'
      -w <wait_string> : Wait string
         -p <response_string> : [Required with same length as -w] Send a string when -w string is found
@@ -107,11 +107,11 @@ Special modes:
 Examples:
     - Run 'yum -y install gdb' as root, look for the strings: 'Nothing' or 'Complete', then display
         'Installed' or 'Not Installed' on the screen. Process hosts matching 'Build' column = 'WHC038'
-    ./reach.py -c 'yum -y install gdb' -s -d 'Nothing|Complete' -r 'Installed|Not Installed' -e 'Build=WHC038'
+    ./reach.py -c 'yum -y install gdb' -u -s 'Nothing|Complete' -r 'Installed|Not Installed' -f 'Build=WHC038'
               -------------------------------------------------------------------------------
     - Run 'sh ip route 10.143.92.134', look for the strings: 'bond0.' or 'bond0', then display
         'Found in: $HF_1' ($HF_1 is the first column of the inventory) or 'Not Here' then halt the hosts loop
-    ./reach.py -c "sh ip route 10.143.92.134" -d 'bond0.|bond0' -r 'Found in: $HF_1|Not Here' -h
+    ./reach.py -c "sh ip route 10.143.92.134" -s 'bond0.|bond0' -r 'Found in: $HF_1|Not Here' -h
               -------------------------------------------------------------------------------
     - Check access against all hosts in the inventory file
     ./reach.py -a
@@ -123,14 +123,14 @@ Examples:
     ./reach.py -b 'vga_backups.csv'
               -------------------------------------------------------------------------------
     - Change password for a user (run this in simulation mode for an explanation)
-    ./reach.py -c 'passwd testuser' -w 'New|Retype' -p 'mypass3|mypass3' -d 'successfully' -r 'Changed password successfully!'
+    ./reach.py -c 'passwd testuser' -w 'New|Retype' -p 'mypass3|mypass3' -s 'successfully' -r 'Changed password successfully!'
     Remember that -p supports $CT=<cipher text> to obfuscate the password. So it would be: -p '$CT=xxxxx|$CT=xxxxx'
 
 Tips:
     - Always be sure to run in SIMULATION mode first to see what the script is about to do!
-    - Use the -r option in conjunction with -d to substitute results, optionally use: grep and sed to limit output.
-        Example: Find all hosts where 'vyatta' is found in the zones list. (Assumes you have access to all servers in file)
-        ./reach.py -c 'show zone-policy zone' -d 'vyatta|$NF' -r 'yes|no' | grep -E 'yes|no' | sed -e 's/^[ \t-]*//'
+    - Use the -r option in conjunction with -s to substitute results, optionally use: grep and sed to limit output.
+        Example: Search all hosts where 'vyatta' is found in the zones list. (Assumes you have access to all servers in file)
+        ./reach.py -c 'show zone-policy zone' -s 'vyatta|$NF' -r 'yes|no' | grep -E 'yes|no' | sed -e 's/^[ \t-]*//'
            You may then paste the output as a new column in your inventory file.
         """
 
@@ -142,7 +142,7 @@ Tips:
         """
         opts = None
         try:
-            opts, args = getopt.getopt(argv, 'ab:c:xgvoe:i:k:shd:w:p:r:?',
+            opts, args = getopt.getopt(argv, 'ab:c:xdvof:i:k:uhs:w:p:r:?',
                                        ["config=", "username=", "password=", "private_key=", "cipher_text=",
                                         "host_fields"])
         except KeyboardInterrupt:
@@ -161,8 +161,8 @@ Tips:
                 set_cli_config(opt, True)
                 user_opts[opt] = True
             if opt in STRING_OPTS:
-                if SWITCH_KEYS[opt] == CONDITION_STRING and CONDITION_STRING in cli_config.keys():
-                    concat_condition = cli_config[CONDITION_STRING] + "&" + arg
+                if SWITCH_KEYS[opt] == FILTER_STRING and FILTER_STRING in cli_config.keys():
+                    concat_condition = cli_config[FILTER_STRING] + "&" + arg
                     set_cli_config(opt, concat_condition)
                     user_opts[opt] = concat_condition
                 else:
@@ -228,40 +228,43 @@ Tips:
                     conflicting_opts_keys) + " not allowed in access (-a) mode!")
 
         # Check HOSTS_IMPUT_FILE
-        if config[INVENTORY_FILE] == '':
+        if config[HOSTS_INVENTORY_FILE] == '':
             raise IOError("HOSTS_INPUT_FILE must be defined either in " +
                           config[CONFIG_FILE] + " or with option '" +
-                          SWITCH_VALUE[INVENTORY_FILE] + "'.")
+                          SWITCH_VALUE[HOSTS_INVENTORY_FILE] + "'.")
 
         # Files existence detection
         # CONFIG_FILE already checked
-        keys_with_files = [BATCH_FILE, SSH_PRIVATE_KEY, INVENTORY_FILE, CIPHER_KEY_FILE]
+        if COLUMN_VARIABLE in config[SSH_PRIVATE_KEY_FILE]:
+            keys_with_files = [BATCH_FILE, HOSTS_INVENTORY_FILE, CIPHER_KEY_FILE]
+        else:
+            keys_with_files = [BATCH_FILE, SSH_PRIVATE_KEY_FILE, HOSTS_INVENTORY_FILE, CIPHER_KEY_FILE]
         keys_with_files = [key for key in keys_with_files if config[key]]
         for file_key in keys_with_files:
             if not os.path.isfile(config[file_key]):
                 raise IOError(config[file_key] + " doesn't exist.")
 
         # -k must be used with -i
-        if INVENTORY_FILE in cli_config.keys():
+        if HOSTS_INVENTORY_FILE in cli_config.keys():
             if IP_OR_HOST_COLUMN not in cli_config.keys():
-                raise ValueError("'" + SWITCH_VALUE[INVENTORY_FILE] + "' can only be used in conjunction with '" +
+                raise ValueError("'" + SWITCH_VALUE[HOSTS_INVENTORY_FILE] + "' can only be used in conjunction with '" +
                                  SWITCH_VALUE[IP_OR_HOST_COLUMN] + "'.")
         # Check hosts file
-        hosts_file = REODelimitedFile(config[INVENTORY_FILE], has_header=True)
+        hosts_file = REODelimitedFile(config[HOSTS_INVENTORY_FILE], has_header=True)
         max_column = len(hosts_file.header_list)
         if config[IP_OR_HOST_COLUMN] not in hosts_file.header_list:
             raise ValueError("Column '" + config[IP_OR_HOST_COLUMN] + "' cannot be found in hosts file.")
-        if config[CONDITION_STRING]:
-            if STRINGS_MULTI_CONDITION in config[CONDITION_STRING] and STRINGS_DELIMITER in config[CONDITION_STRING]:
+        if config[FILTER_STRING]:
+            if STRINGS_MULTI_CONDITION in config[FILTER_STRING] and STRINGS_DELIMITER in config[FILTER_STRING]:
                 raise ValueError(
-                    "Condition cannot contain both '" + STRINGS_MULTI_CONDITION + "' and '" + STRINGS_DELIMITER + "'")
+                    "Filter cannot contain both '" + STRINGS_MULTI_CONDITION + "' and '" + STRINGS_DELIMITER + "'")
             conditions = re.split("[" + STRINGS_MULTI_CONDITION + STRINGS_DELIMITER + "]",
-                                  config[CONDITION_STRING])
+                                  config[FILTER_STRING])
             conditions = [{'cond': cond, 'splits': re.split("[~=!]", cond)} for cond in conditions]
             for cond in conditions:
                 if len(cond['splits']) != 2:
                     raise ValueError(
-                        "Condition '" + cond['cond'] + "' invalid, please specify '~', '=', or '!' for each condition.")
+                        "Filter '" + cond['cond'] + "' invalid, please specify '~', '=', or '!' for each filter.")
                 if cond['splits'][0] not in hosts_file.header_list:
                     raise ValueError("Column '" + cond['splits'][0] + "' cannot be found in hosts file.")
 
@@ -310,26 +313,26 @@ Tips:
                                                                                                           COMMAND_WAIT_STRING] != '' else 0
             temp[COMMAND_SEND_STRING] = len(command[COMMAND_SEND_STRING].split(STRINGS_DELIMITER)) if command[
                                                                                                           COMMAND_SEND_STRING] != '' else 0
-            temp[COMMAND_SEARCH_STRING] = len(command[COMMAND_SEARCH_STRING].split(STRINGS_DELIMITER)) if command[
-                                                                                                              COMMAND_SEARCH_STRING] != '' else 0
+            temp[COMMAND_FIND_STRING] = len(command[COMMAND_FIND_STRING].split(STRINGS_DELIMITER)) if command[
+                                                                                                              COMMAND_FIND_STRING] != '' else 0
             temp[COMMAND_REPORT_STRING] = len(command[COMMAND_REPORT_STRING].split(STRINGS_DELIMITER)) if command[
                                                                                                               COMMAND_REPORT_STRING] != '' else 0
             if temp[COMMAND_WAIT_STRING] != temp[COMMAND_SEND_STRING]:
                 raise ValueError("Option '" + SWITCH_VALUE[
                     COMMAND_SEND_STRING] + "' must be used in conjunction with option '" +
                                  SWITCH_VALUE[COMMAND_WAIT_STRING] + "' with the same length.")
-            if temp[COMMAND_REPORT_STRING] > 0 and temp[COMMAND_SEARCH_STRING] == 0:
+            if temp[COMMAND_REPORT_STRING] > 0 and temp[COMMAND_FIND_STRING] == 0:
                 raise ValueError("Option '" + SWITCH_VALUE[
                     COMMAND_REPORT_STRING] + "' cannot be used without option '" +
-                                 SWITCH_VALUE[COMMAND_SEARCH_STRING] + "'.")
-            if temp[COMMAND_REPORT_STRING] > 0 and (temp[COMMAND_SEARCH_STRING] != temp[COMMAND_REPORT_STRING]):
+                                 SWITCH_VALUE[COMMAND_FIND_STRING] + "'.")
+            if temp[COMMAND_REPORT_STRING] > 0 and (temp[COMMAND_FIND_STRING] != temp[COMMAND_REPORT_STRING]):
                 raise ValueError("When option '" + SWITCH_VALUE[
                     COMMAND_REPORT_STRING] + "' is used in conjunction with option '" +
-                                 SWITCH_VALUE[COMMAND_SEARCH_STRING] + "', they must have the same length.")
-            if command[HALT_ON_STRING].lower() in ['yes', 'true'] and command[COMMAND_SEARCH_STRING] == '':
+                                 SWITCH_VALUE[COMMAND_FIND_STRING] + "', they must have the same length.")
+            if command[HALT_ON_STRING].lower() in ['yes', 'true'] and command[COMMAND_FIND_STRING] == '':
                 raise ValueError(
                     "Option '" + SWITCH_VALUE[HALT_ON_STRING] + "' must be used in conjunction with option '" +
-                    SWITCH_VALUE[COMMAND_SEARCH_STRING] + "'.")
+                    SWITCH_VALUE[COMMAND_FIND_STRING] + "'.")
 
             command_raw = ','.join(command.values())
             hvars = re.findall(re.escape(COLUMN_VARIABLE) + '\d*', command_raw)
@@ -428,7 +431,7 @@ Tips:
             self.sshworker.str_vars_exist = check_for_vars()
         if config[OPERATION] == HOST_FIELDS:
             self.sshworker = CheckAccessWorker(logger=self.logger)
-            print ("This is a list of the available column names in " + config[INVENTORY_FILE] + " along with \n"
+            print ("This is a list of the available column names in " + config[HOSTS_INVENTORY_FILE] + " along with \n"
                                                                                                    "  the corresponding $HF_# that can be used as command-line options or in the config.\n")
             self.sshworker.display_host_fields()
             sys.exit(0)
@@ -455,7 +458,7 @@ Tips:
 
     @classmethod
     def get_simulation_str(cls):
-        return ' - SIMULATION MODE ONLY' if config[RUN_IN_SIMULATION_MODE] else ''
+        return ' - SIMULATION MODE ONLY' if config[SIMULATION_MODE] else ''
 
 
 def main(argv):

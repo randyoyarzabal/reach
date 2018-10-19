@@ -17,7 +17,7 @@
 ;SSH_PASSWORD_CIPHER : XXXXXXXXXXX
 
 ; Optional, uncomment this to use the specified RSA key.
-;SSH_PRIVATE_KEY : /Users/randyo/.ssh/id_rsa
+;SSH_PRIVATE_KEY_FILE : /Users/randyo/.ssh/id_rsa
 
 ; Define default hosts inventory to use.  It needs to be a comma separated file with a header row.
 ; Be sure to define the matching HOST_MARKER (text displayed when processing)

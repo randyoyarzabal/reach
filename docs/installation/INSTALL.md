@@ -37,7 +37,7 @@ and pass it to Reach like this: `./reach.py --config_file=<config file>`
 You can optionally have other columns so you can selectively process hosts, or use host specific 
 data like username, password (in cipher text), etc.  See sample [docs/templates/hosts_file_sample.csv](../templates/hosts_file_sample.csv).  The columns and 
 specific types are up to you, as long as it is in CSV (comma-delimited) format and you define a KEY_COLUMN (`-k`).
-It is recommended you have categorical columns so you can use `-e` later to select a subset of your hosts. 
+It is recommended you have categorical columns so you can use `-f` later to select a subset of your hosts. 
 
 6. Generate your password cipher text
 
@@ -54,7 +54,7 @@ It is recommended you have categorical columns so you can use `-e` later to sele
         > `./reach.py -a` to check your access against all the hosts.
 
     - Run a simple command like `whoami` on all hosts, optionally append a filter condition against the hosts on 
-        an available column like `Type` example: `-e 'Type=Linux'` to run only against Linux hosts only:
+        an available column like `Type` example: `-f 'Type=Linux'` to run only against Linux hosts only:
 
         > `./reach.py -c 'whoami' -o` (append `-x` to simulate like above)
 
@@ -72,5 +72,5 @@ Optionally, you can also pass the hosts file:
    >`./reach.py -i docs/templates/hosts_file_sample.csv -k 'IP Address' ...`
 
 
-Remember -x for simulation!  Useful for checking to make sure the commands and filtering (-e)
+Remember -x for simulation!  Useful for checking to make sure the commands and filtering (-f)
   is correct before actually executing.

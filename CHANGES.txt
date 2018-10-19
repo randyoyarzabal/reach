@@ -4,7 +4,7 @@ https://github.com/randyoyarzabal/reach
 
 Current Development (dev 1.0.3) Branch
 ------------
-+ Added support for 'not equals' condition, the '!' symbol.
++ Added support for 'not equals' filter, the '!' symbol.
 + Added exception logging for authentication errors.
 
 v1.0.2 [9-Oct-2017]

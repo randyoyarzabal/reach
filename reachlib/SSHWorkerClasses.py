@@ -122,7 +122,7 @@ class RunBatchCommandsWorker(BaseREOSSHWorker):
             config[COMMAND_SEND_STRING] = cmd[4]
 
             # 5 - Done String
-            config[COMMAND_SEARCH_STRING] = cmd[5]
+            config[COMMAND_FIND_STRING] = cmd[5]
 
             # 6 - Report String(s)
             config[COMMAND_REPORT_STRING] = cmd[6]
@@ -155,4 +155,4 @@ class RunBatchCommandsWorker(BaseREOSSHWorker):
         return retval
 
     def host_work(self):
-        return self.process_commands(False, config[RUN_IN_SIMULATION_MODE])
+        return self.process_commands(False, config[SIMULATION_MODE])
