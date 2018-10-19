@@ -362,8 +362,8 @@ class REORemoteHost(object):
                     cipher_text = re.search(re.escape(self.CIPHER_TEXT_MARKER) + '([^|]*)', rs)
                     if cipher_text is not None:
                         response_strings[i] = response_strings[i].replace(cipher_text.group(0),
-                                                                          REOUtility.decrypt_str(cipher_text.group(1)),
-                                                                          cipher_key)
+                                                                          REOUtility.decrypt_str(cipher_text.group(1),
+                                                                                                 cipher_key))
                         response_display[i] = response_display[i].replace(cipher_text.group(0), '**********')
             wait_response_pair = zip(wait_strings, response_strings, response_display)
             if len(wait_response_pair) > 0:
