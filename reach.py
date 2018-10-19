@@ -40,8 +40,8 @@ class Reach(REOScript):
         """Directory only of running script"""
 
         self.SCRIPT_NAME = os.path.basename(self.full_path)
-        self.SCRIPT_VERSION = 'v1.0.2'
-        self.SCRIPT_DATE = '05-Jan-2017'
+        self.SCRIPT_VERSION = 'v1.0.3'
+        self.SCRIPT_DATE = '18-Oct-2018'
         self.SCRIPT_DESCRIPTION = "Lightweight tool for executing remote commands on multiple hosts via SSH."
         self.SCRIPT_SYNTAX_OR_INFO = "Git Repository: https://github.com/randyoyarzabal/reach"
         self.SCRIPT_HELP = "Help/usage: reach.py -?"
@@ -67,22 +67,23 @@ Operation Modes:
     -c <command> : Run Command
 
 Optional for all modes:
-    --config=<config_file> Override the default config.ini
+    --config=<config_file> Override the default config.ini (located in the configs directory)
     -x : Enable SIMULATION (no connection/commands invoked)
     -g : Enable DEBUG
     -i <inventory_file> : Inventory (hosts) file (comma separated, define header key with -k)
       -k <key_column> : [Required with -i] Column header of keys
-    -e <condition> : Filter hosts to process. Operators are supported: = equal, | or, ~ contains, & and.
+    -e <condition> : Filter hosts to process. Operators are supported: = equal, ! not equal, | or, ~ contains, & and.
         Note: Reach does not support mixed (& and |) in this release yet.
         Example conditions: 'Build=WHC0122' , 'Build=WHC0122&Host~app, 'Build=WHC0122|Host~app|Host~dom'
 
 Optional for Command (-c) mode. Note that for Batch (-b) Mode, these are internally defined in the commands file.
     -o : Show command console output (ignored in batch (-b option) mode)
-    -s : Run command as root (run 'sudo su -' first)
+    -s : Run command as root (run 'sudo su -' first), assumes no password needed
     -h : Halt looping through hosts when first done string (-d) is found
 
-Special mode only for changing passwords to cipher text:
-    --cipher_text=<password> return the password in cipher text to put in the password file
+Special modes:
+    --cipher_text=<password> : return the password in cipher text to put in the password file
+    --host_fields : return a list of column headers (with $HF_#) from the host file
 
     The following can use hosts file column variables ($HF_#) delimited by '|':
         For example: '$HF_#' where # is the column number in the hosts file:
@@ -123,6 +124,7 @@ Examples:
               -------------------------------------------------------------------------------
     - Change password for a user (run this in simulation mode for an explanation)
     ./reach.py -c 'passwd testuser' -w 'New|Retype' -p 'mypass3|mypass3' -d 'successfully' -r 'Changed password successfully!'
+    Remember that -p supports $CT=<cipher text> to obfuscate the password. So it would be: -p '$CT=xxxxx|$CT=xxxxx'
 
 Tips:
     - Always be sure to run in SIMULATION mode first to see what the script is about to do!
@@ -141,10 +143,12 @@ Tips:
         opts = None
         try:
             opts, args = getopt.getopt(argv, 'ab:c:xgvoe:i:k:shd:w:p:r:?',
-                                       ["config=", "username=", "password=", "private_key=", "cipher_text="])
+                                       ["config=", "username=", "password=", "private_key=", "cipher_text=",
+                                        "host_fields"])
         except KeyboardInterrupt:
             REOUtility.key_interrupt()
-        except getopt.GetoptError:
+        except getopt.GetoptError as e:
+            print "Invalid option: %s" % str(e)
             self.author(show_help=True)
             sys.exit(2)
         if len(opts) == 0 or len(args) > 0:
@@ -175,6 +179,7 @@ Tips:
         """
         # Required switch, only allow one of these
         operations = [option for option in cli_config if option in EXCLUSIVE_OPTS]
+
         if len(operations) == 0:
             self.author(show_help=True)
             sys.exit(2)
@@ -195,8 +200,15 @@ Tips:
         if config[OPERATION] == CIPHER:
             self.author()
             print ("Warning: this cipher text form is only useful in Reach.  It is by no means secure.\n"
-                   "It is simply meant to conceal and prevent passwords from being displayed in clear-text.")
-            print "\nCipher text: '" + REOUtility.encrypt_str(cli_config[CIPHER]) + "'"
+                   "It is simply meant to conceal/obfuscate and prevent passwords from being displayed in clear-text.\n")
+            if config[CIPHER_KEY_FILE]:
+                print "The cipher-key file: %s was used. " % config[CIPHER_KEY_FILE]
+                print "Note that decryption of the text below will only work with this file."
+                cipher_key = REOUtility.get_string_from_file(config[CIPHER_KEY_FILE])
+            else:
+                cipher_key = REOUtility.CIPHER_KEY
+
+            print "\nCipher text: '" + REOUtility.encrypt_str(cli_config[CIPHER], cipher_key) + "'"
             sys.exit(0)
 
         # Forbidden opts when using -b
@@ -216,40 +228,40 @@ Tips:
                     conflicting_opts_keys) + " not allowed in access (-a) mode!")
 
         # Check HOSTS_IMPUT_FILE
-        if config[HOSTS_INPUT_FILE] == '':
+        if config[INVENTORY_FILE] == '':
             raise IOError("HOSTS_INPUT_FILE must be defined either in " +
                           config[CONFIG_FILE] + " or with option '" +
-                          SWITCH_VALUE[HOSTS_INPUT_FILE] + "'.")
+                          SWITCH_VALUE[INVENTORY_FILE] + "'.")
 
         # Files existence detection
         # CONFIG_FILE already checked
-        keys_with_files = [COMMANDS_FILE, SSH_PRIVATE_KEY, HOSTS_INPUT_FILE]
+        keys_with_files = [BATCH_FILE, SSH_PRIVATE_KEY, INVENTORY_FILE, CIPHER_KEY_FILE]
         keys_with_files = [key for key in keys_with_files if config[key]]
         for file_key in keys_with_files:
             if not os.path.isfile(config[file_key]):
                 raise IOError(config[file_key] + " doesn't exist.")
 
         # -k must be used with -i
-        if HOSTS_INPUT_FILE in cli_config.keys():
-            if KEY_COLUMN not in cli_config.keys():
-                raise ValueError("'" + SWITCH_VALUE[HOSTS_INPUT_FILE] + "' can only be used in conjunction with '" +
-                                 SWITCH_VALUE[KEY_COLUMN] + "'.")
+        if INVENTORY_FILE in cli_config.keys():
+            if IP_OR_HOST_COLUMN not in cli_config.keys():
+                raise ValueError("'" + SWITCH_VALUE[INVENTORY_FILE] + "' can only be used in conjunction with '" +
+                                 SWITCH_VALUE[IP_OR_HOST_COLUMN] + "'.")
         # Check hosts file
-        hosts_file = REODelimitedFile(config[HOSTS_INPUT_FILE], has_header=True)
+        hosts_file = REODelimitedFile(config[INVENTORY_FILE], has_header=True)
         max_column = len(hosts_file.header_list)
-        if config[KEY_COLUMN] not in hosts_file.header_list:
-            raise ValueError("Column '" + config[KEY_COLUMN] + "' cannot be found in hosts file.")
+        if config[IP_OR_HOST_COLUMN] not in hosts_file.header_list:
+            raise ValueError("Column '" + config[IP_OR_HOST_COLUMN] + "' cannot be found in hosts file.")
         if config[CONDITION_STRING]:
             if STRINGS_MULTI_CONDITION in config[CONDITION_STRING] and STRINGS_DELIMITER in config[CONDITION_STRING]:
                 raise ValueError(
                     "Condition cannot contain both '" + STRINGS_MULTI_CONDITION + "' and '" + STRINGS_DELIMITER + "'")
             conditions = re.split("[" + STRINGS_MULTI_CONDITION + STRINGS_DELIMITER + "]",
                                   config[CONDITION_STRING])
-            conditions = [{'cond': cond, 'splits': re.split("[~=]", cond)} for cond in conditions]
+            conditions = [{'cond': cond, 'splits': re.split("[~=!]", cond)} for cond in conditions]
             for cond in conditions:
                 if len(cond['splits']) != 2:
                     raise ValueError(
-                        "Condition '" + cond['cond'] + "' invalid, please specify '~' or '=' for each condition.")
+                        "Condition '" + cond['cond'] + "' invalid, please specify '~', '=', or '!' for each condition.")
                 if cond['splits'][0] not in hosts_file.header_list:
                     raise ValueError("Column '" + cond['splits'][0] + "' cannot be found in hosts file.")
 
@@ -262,7 +274,7 @@ Tips:
         # the list of commands to be executed. Then each command will be
         # checked for validity
         if config[OPERATION] == OPERATION_BATCH:
-            commands_file = REODelimitedFile(config[COMMANDS_FILE])
+            commands_file = REODelimitedFile(config[BATCH_FILE])
             row = 0
             for command in commands_file:
                 row += 1
@@ -391,6 +403,7 @@ Tips:
 
         try:
             self.check_prerequisites()
+
         except Exception as error:
             print("Aborted..." + error.message)
             print "Use: 'reach.py -?' for usage/help."
@@ -405,14 +418,20 @@ Tips:
             self.sshworker.SHOW_HOST_DURATION = False  # Force to false, this is never needed in this mode
         if config[OPERATION] == OPERATION_BATCH:
             print ("== | Operation: Run Batch Commands from File" + self.get_simulation_str() + " | ==\n")
-            self.sshworker = RunBatchCommandsWorker(config[COMMANDS_FILE], logger=self.logger)
+            self.sshworker = RunBatchCommandsWorker(config[BATCH_FILE], logger=self.logger)
             self.log(logging.INFO, "Batch Mode Started", False)
-            self.log(logging.INFO, "Processing batch file: " + config[COMMANDS_FILE], False)
+            self.log(logging.INFO, "Processing batch file: " + config[BATCH_FILE], False)
         if config[OPERATION] == OPERATION_COMMAND:
             print ("== | Operation: Run Command" + self.get_simulation_str() + " | ==\n")
             self.log(logging.INFO, "Command Mode Started", False)
             self.sshworker = RunCommandWorker(logger=self.logger)
             self.sshworker.str_vars_exist = check_for_vars()
+        if config[OPERATION] == HOST_FIELDS:
+            self.sshworker = CheckAccessWorker(logger=self.logger)
+            print ("This is a list of the available column names in " + config[INVENTORY_FILE] + " along with \n"
+                                                                                                   "  the corresponding $HF_# that can be used as command-line options or in the config.\n")
+            self.sshworker.display_host_fields()
+            sys.exit(0)
 
         # Process hosts
         self.sshworker.hosts_worker()  # Loop through hosts

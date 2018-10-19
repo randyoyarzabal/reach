@@ -50,7 +50,7 @@ class RunBatchCommandsWorker(BaseREOSSHWorker):
         """File containing batch commands"""
 
         self.str_vars_exist = True  # Assume true no matter what
-        config[COMMANDS_FILE] = commands_file
+        config[BATCH_FILE] = commands_file
         self.process_commands(check_only=True)  # Check for destructive commands, and wait time
 
     def run_simulation(self):

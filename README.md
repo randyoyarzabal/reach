@@ -49,12 +49,12 @@
 
 ### Optional for all Modes 
 
-    --config=<config_file> Override the default config.ini
+    --config=<config_file> Override the default config.ini (located in the configs directory)
     -x : Enable SIMULATION (no connection/commands invoked)
     -g : Enable DEBUG
     -i <inventory_file> : Inventory (hosts) file (comma separated, define header key with -k)
       -k <key_column> : [Required with -i] Column header of keys
-    -e <condition> : Filter hosts to process. Operators are supported: = equal, | or, ~ contains, & and.
+    -e <condition> : Filter hosts to process. Operators are supported: = equal, ! not equal, | or, ~ contains, & and.
         Note: Reach does not support mixed (& and |) in this release.
         Example conditions: 'Build=WHC0122' , 'Build=WHC0122&Host~app, 'Build=WHC0122|Host~app|Host~dom'
 
@@ -62,7 +62,7 @@
 ##### *Note that for Batch Mode, these are internally defined in the commands file.*
 
     -o : Show command console output (ignored in batch (-b option) mode)
-    -s : Run command as root (run 'sudo su -' first)
+    -s : Run command as root (run 'sudo su -' first), assumes no password needed
     -h : Halt looping through hosts when first done string (-d) is found
 
 ##### The following can use hosts file column variables ($HF) delimited by '|':
@@ -85,8 +85,9 @@
             $CT=<password in cipher text> : Used for sending passwords to the terminal like changing passwords 
               or sending Cisco ASA passwords in "enable" mode.  
 
-### Special mode only for changing passwords to cipher text
-    --cipher_text=<password> return the password in cipher text to put in the password file
+### Special modes
+    --cipher_text=<password> : return the password in cipher text to put in the password file
+    --host_fields : return a list of column headers (with $HF_#) from the host file
 
 ### Examples
 
@@ -109,6 +110,7 @@
               -------------------------------------------------------------------------------
     - Change password for a user (run this in simulation mode for an explanation)
     ./reach.py -c 'passwd randyo' -w 'New|Retype' -p 'mypass3|mypass3' -d 'successfully' -r 'Changed password'
+    Remember that -p supports $CT=<cipher text> to obfuscate the password. So it would be: -p '$CT=xxxxx|$CT=xxxxx'
 
 ### Helpful Tips
 

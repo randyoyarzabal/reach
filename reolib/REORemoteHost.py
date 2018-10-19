@@ -149,7 +149,7 @@ class REORemoteHost(object):
                 self.log(logging.DEBUG, "Using user-defined key file", False)
                 self.client.connect(self.ip, username=self.usr, timeout=conn_timeout,
                                     allow_agent=True, key_filename=self.key_file,
-                                    password=self.pwd)
+                                    password=self.pwd, look_for_keys=True)
             else:
                 self.log(logging.DEBUG, "Using password", False)
                 self.client.connect(self.ip, username=self.usr, password=self.pwd,
@@ -159,12 +159,14 @@ class REORemoteHost(object):
             self.connected = True
         except KeyboardInterrupt:
             self.util.key_interrupt()
-        except (BadAuthenticationType, AuthenticationException, PartialAuthentication, SSHException):
+        except (BadAuthenticationType, AuthenticationException, PartialAuthentication, SSHException) as e:
             self.connect_status_string = self.SERVER_STATUS_NO_ACCESS
             self.log(logging.DEBUG, self.connect_status_string, False)
-        except:
+            self.log(logging.DEBUG, str(e), False)
+        except Exception as e:
             self.connect_status_string = self.SERVER_STATUS_UNABLE_TO_REACH
             self.log(logging.DEBUG, self.connect_status_string, False)
+            self.log(logging.DEBUG, str(e), False)
 
         if self.connected:
             self.shell = self.client.invoke_shell()
@@ -232,7 +234,7 @@ class REORemoteHost(object):
         Try to set the prompt to a personalized one.
         :return: True/False for success/failure, output
         """
-        self.log(logging.DEBUG,"Set prompt start", False)
+        self.log(logging.DEBUG, "Set prompt start", False)
         # Setting the timeout for the shell to a lower value for this function only
         self.shell.settimeout(self.PROMPT_SET_TIMEOUT)
         self.shell.send("PS1=$PS1'" + self.new_prompt + "'\n")  # In case of sh-style
@@ -252,11 +254,12 @@ class REORemoteHost(object):
                 self.util.print_stack()
         self.shell.settimeout(self.cmd_timeout)
         self.expected_prompt_regex = self.new_prompt_regex
-        self.log(logging.DEBUG,"Set prompt success", False)
+        self.log(logging.DEBUG, "Set prompt success", False)
 
         return True, output
 
-    def send_cmd_wait_respond(self, command, search_string='', wait_string='', response_string='', last_run_log=None):
+    def send_cmd_wait_respond(self, command, search_string='', wait_string='', response_string='', last_run_log=None,
+                              cipher_key=REOUtility.CIPHER_KEY):
         """
         This method will send a command to the server and search for a "search" string.
         It can optionally, wait for subsequent strings and send a response string.
@@ -265,6 +268,7 @@ class REORemoteHost(object):
         :param search_string: Search string(s)
         :param wait_string: String(s) to expect
         :param response_string: String(s) to use as a response for wait_strings
+        :param cipher_key: 32 character cipher string for decrypting any $CT= values
         :return: Output of command, error_msg (or '')
         """
         # Check for wait conditions
@@ -311,7 +315,8 @@ class REORemoteHost(object):
                     cipher_text = re.search(re.escape(self.CIPHER_TEXT_MARKER) + '([^|]*)', rs)
                     if cipher_text is not None:
                         response_strings[i] = response_strings[i].replace(cipher_text.group(0),
-                                                                          REOUtility.decrypt_str(cipher_text.group(1)))
+                                                                          REOUtility.decrypt_str(cipher_text.group(1)),
+                                                                          cipher_key)
                         response_display[i] = response_display[i].replace(cipher_text.group(0), '**********')
             wait_response_pair = zip(wait_strings, response_strings, response_display)
             if len(wait_response_pair) > 0:
@@ -422,7 +427,7 @@ class REORemoteHost(object):
                          "Wait keys found but response not sent because prompt immediately returned: " + keys_found,
                          False)
                 print (
-                    "  - Wait strings found but response not sent because prompt immediately returned: " + keys_found + "")
+                        "  - Wait strings found but response not sent because prompt immediately returned: " + keys_found + "")
 
         if self.__detect_sudo(command):
             prompt_set, output = self.set_prompt()

@@ -27,7 +27,7 @@ class BaseREOSSHWorker(object):
         self.current_host = None
         """Current host being processed"""
 
-        self.hosts = REODelimitedFile(config[HOSTS_INPUT_FILE], ',', has_header=True)
+        self.hosts = REODelimitedFile(config[INVENTORY_FILE], ',', has_header=True)
         """Main hosts file for processing"""
 
         self.util = REOUtility(config[DEBUG_FLAG])
@@ -99,7 +99,7 @@ class BaseREOSSHWorker(object):
 
         for host in self.hosts:
             self.current_host = host
-            self.current_ip = self.hosts.get_row_val(name=config[KEY_COLUMN])
+            self.current_ip = self.hosts.get_row_val(name=config[IP_OR_HOST_COLUMN])
 
             if config[CONDITION_STRING]:
                 try:
@@ -153,16 +153,20 @@ class BaseREOSSHWorker(object):
         self.rhost.usr = self.replace_column_vars(config[SSH_USER_NAME])
 
         if config[SSH_PASSWORD_CIPHER]:
-            self.rhost.pwd = REOUtility.decrypt_str(self.replace_column_vars(config[SSH_PASSWORD_CIPHER]))
+            if config[CIPHER_KEY_FILE]:
+                cipher_key = REOUtility.get_string_from_file(config[CIPHER_KEY_FILE])
+            else:
+                cipher_key = REOUtility.CIPHER_KEY
+            self.rhost.pwd = REOUtility.decrypt_str(self.replace_column_vars(config[SSH_PASSWORD_CIPHER]), cipher_key)
         else:
             self.rhost.pwd = config[SSH_PASSWORD]
 
         self.rhost.key_file = self.replace_column_vars(config[SSH_PRIVATE_KEY])
         self.rhost.str_vars_exist = self.str_vars_exist
 
-        if config[HOST_MARKER]:
-            print self.__get_process_str() + self.replace_column_vars(config[HOST_MARKER]) + " ...",
-            self.log(logging.INFO, "Processing host: " + self.replace_column_vars(config[HOST_MARKER]))
+        if config[HOST_DISPLAY_FORMAT]:
+            print self.__get_process_str() + self.replace_column_vars(config[HOST_DISPLAY_FORMAT]) + " ...",
+            self.log(logging.INFO, "Processing host: " + self.replace_column_vars(config[HOST_DISPLAY_FORMAT]))
         else:
             print self.__get_process_str() + self.current_ip + " ...",
             self.log(logging.INFO, "Processing host: " + self.current_ip)
@@ -170,7 +174,8 @@ class BaseREOSSHWorker(object):
 
         connected = self.rhost.connect_host(set_prompt=config[OPERATION] != OPERATION_ACCESS,
                                             conn_timeout=config[SSH_CONNECTION_TIMEOUT],
-                                            cmd_timeout=config[SSH_COMMAND_TIMEOUT], trust_hosts=config[TRUST_HOSTS])
+                                            cmd_timeout=config[SSH_COMMAND_TIMEOUT],
+                                            trust_hosts=config[SSH_TRUST_HOSTS])
 
         self.log(logging.INFO, self.rhost.connect_status_string, True)
         if config[OPERATION] == OPERATION_ACCESS:
@@ -220,10 +225,15 @@ class BaseREOSSHWorker(object):
             self.log(logging.INFO, "Running command: \'" + self.command_string + "\'", False)
 
         if self.search_string or self.wait_string:
+            if config[CIPHER_KEY_FILE]:
+                cipher_key = REOUtility.get_string_from_file(config[CIPHER_KEY_FILE])
+            else:
+                cipher_key = REOUtility.CIPHER_KEY
+
             # Send the command to the server and wait for a string
             output, error_msg = self.rhost.send_cmd_wait_respond(self.command_string, self.search_string,
                                                                  self.wait_string, self.response_string,
-                                                                 self.last_run_log)
+                                                                 self.last_run_log, cipher_key=cipher_key)
             # skip the rest of the if statement if error_msg != '' ?
             w = self.rhost.search_string_isfound
 
@@ -259,7 +269,7 @@ class BaseREOSSHWorker(object):
         :return:
         """
         # Display for any mode
-        print "Hosts File: " + config[HOSTS_INPUT_FILE]
+        print "Hosts File: " + config[INVENTORY_FILE]
 
         if not self.str_vars_exist:
             if config[RUN_SUDO_FIRST]:
@@ -297,7 +307,7 @@ class BaseREOSSHWorker(object):
 
         # Display the rest for specific modes
         if config[OPERATION] == OPERATION_BATCH:
-            print "- Commands File: " + config[COMMANDS_FILE]
+            print "- Commands File: " + config[BATCH_FILE]
         if config[CONDITION_STRING]:
             print ("Condition found. Filtering processing to: '" + config[CONDITION_STRING]) + "'"
 
@@ -369,8 +379,8 @@ class BaseREOSSHWorker(object):
         Display per-host progress to screen.
         :return: True signal continuation of hosts iteration, False otherwise (halt).
         """  # Running in simulation mode
-        if config[HOST_MARKER]:
-            print (self.__get_process_str() + self.replace_column_vars(config[HOST_MARKER]))
+        if config[HOST_DISPLAY_FORMAT]:
+            print (self.__get_process_str() + self.replace_column_vars(config[HOST_DISPLAY_FORMAT]))
         else:
             print (self.__get_process_str() + self.current_ip)
 
@@ -384,13 +394,24 @@ class BaseREOSSHWorker(object):
         """
         raise NotImplementedError
 
+    def display_host_fields(self):
+        """
+        Display a list of host file headers with corresponding $HF_#
+        :return:
+        """
+        for i, col in enumerate(self.hosts.header_list):
+            if col == config[IP_OR_HOST_COLUMN]:
+                col = col + " <== Defined Key Column"
+            print '$HF_%s = %s' % (str(i + 1), col)
+
     def __eval_condition(self, condition):
         """
         Evaluate a single condition string. For example: 'Build=WHC058' or 'Hostname~app'
         :param condition: condition to be evaluated
         :return: True if condition is met, False otherwise.
         """
-        t_cond = re.split("[~=]", condition)
+        ret_val = False
+        t_cond = re.split("[~=!]", condition)
         if len(t_cond) != 2:
             raise KeyError('Invalid condition: ' + condition)
         field = t_cond[0]
@@ -400,7 +421,16 @@ class BaseREOSSHWorker(object):
         except KeyError:
             # shouldn't happen, condition is already checked
             raise KeyError('Invalid field "' + field + '" in condition ' + condition)
-        return (fvalue in rvalue) if '~' in condition else (fvalue == rvalue)
+
+        if STRINGS_CONTAINS in condition:
+            ret_val = (fvalue in rvalue)
+        elif STRINGS_NOT_EQUAL in condition:
+            ret_val = (fvalue != rvalue)
+        else:
+            ret_val = (fvalue == rvalue)
+
+        return ret_val
+        # return (fvalue in rvalue) if '~' in condition else (fvalue == rvalue)
 
     def __replace_vars_in_list(self, l, replace_column=True, display_only=False):
         """

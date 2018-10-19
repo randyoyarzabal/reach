@@ -21,8 +21,8 @@
 
 ; Define default hosts inventory to use.  It needs to be a comma separated file with a header row.
 ; Be sure to define the matching HOST_MARKER (text displayed when processing)
-; and KEY_COLUMN (IP used for connections) below.
-;HOSTS_INPUT_FILE : /Users/randyo/dev/reach_hosts/my_inventory.csv
+; and KEY_COLUMN (IP/hostname used for connections) below.
+;INVENTORY_FILE : /Users/randyo/dev/reach_hosts/my_inventory.csv
 
 ; Optional, will log in "logs" directory if this is commented.
 ;LOGS_DIRECTORY : /Users/randyo/dev/reach/logs/
@@ -30,12 +30,12 @@
 ; Valid values: DEBUG, INFO, WARNING, ERROR, CRITICAL
 LOG_LEVEL : DEBUG
 
-; Define default key column for the IP address to use for connections.
-;KEY_COLUMN : IP Address
+; Define default key column for the IP address or hostname to use for connections.
+;IP_OR_HOST_COLUMN : IP Address
 
 ; Define the string format displayed when processing hosts.
 ;   $HF_# where # is the column number from the file above.
-;HOST_MARKER : $HF_5 - $HF_1: $HF_3
+;HOST_DISPLAY_FORMAT : $HF_5 - $HF_1: $HF_3
 
 ; Safe to leave all as False or comment. Change to suit.
 SHOW_HOST_DURATION : False
