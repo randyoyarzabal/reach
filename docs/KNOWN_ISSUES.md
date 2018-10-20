@@ -2,7 +2,7 @@ Known Issues
 ------------
 
 We've extensively tested Reach for production use for a variety of use cases against different target host
-types such as Linux, Mac, Vyatta, and Cisco devices.  However, we are aware of some issues and are continually
+types such as Linux, Mac, Vyatta, F5, and Cisco devices.  However, we are aware of some issues and are continually
 working towards enhancements.  Here are known issues:
 
 - Reach sends remote commands to a host via an SSH connection over a virtual terminal session. There is no easy
