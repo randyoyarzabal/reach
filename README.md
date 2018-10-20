@@ -1,4 +1,7 @@
-Reach is a tool that sends SSH commands to one or more hosts.  It is similar to Ansible except instead of defining YAML files, you can send it a series of SSH commands directly to any (or all) of the hosts defined in the inventory using on-the-fly filters.  Though it was specifically written for network device management like Cisco, F5, and Brocade, it is also designed to work on any remote host accessible via SSH.
+Reach is a tool that sends SSH commands to one or more hosts.  It is similar to Ansible except instead of defining YAML 
+files, you can send it a series of SSH commands directly to any (or all) of the hosts defined in the inventory using 
+on-the-fly filters.  Though it was specifically written for network device management like Cisco, F5, and Brocade, 
+it is also designed to work on any remote host accessible via SSH like any Linux/Unix-based hosts.
 
 ##### Notable features:
 - Send SSH commands directly to quickly adopt changes to your fleet of hosts.
