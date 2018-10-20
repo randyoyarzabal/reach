@@ -187,6 +187,18 @@ class REORemoteHost(object):
 
     def __connect(self, msg, host, username, password=None, timeout=5, private_key_file=None, allow_agent=False,
                   look_for_keys=False):
+        """
+        Helper method to facilitate various authentication methods and handling exceptions accordingly.
+        :param msg: message to display to screen
+        :param host: host or ip
+        :param username:
+        :param password:
+        :param timeout: connection timeout
+        :param private_key_file: location of private key
+        :param allow_agent:
+        :param look_for_keys:
+        :return: True if successfully connected, False otherwise.
+        """
         connected = False
         try:
             self.log(logging.DEBUG, msg, False)
