@@ -54,7 +54,7 @@ HOST_DISPLAY_FORMAT : $HF_4@$HF_1 ($HF_2): $HF_3
 ; Optional, uncomment this if you don't want to be prompted each time for a user name to use.
 ; May be overridden in the command-line as: --username=<ssh_user>
 ;SSH_USER_NAME : myuser
-; Or to define per-host:
+; Or to define per-host (change column # to suit) :
 ;SSH_USER_NAME : $HF_4
 
 ; Optional, uncomment this if you don't want to be prompted each time for a password to use.
@@ -62,14 +62,14 @@ HOST_DISPLAY_FORMAT : $HF_4@$HF_1 ($HF_2): $HF_3
 ; May be overridden in the command-line as: --username=<ssh_user>
 ; To generate the cipher text: ./reach.py --cipher_text=<real password>
 ;SSH_PASSWORD_CIPHER : Tl0RREQsHQcYXBY=
-; Or to define per-host:
+; Or to define per-host (change column # to suit) :
 ;SSH_PASSWORD_CIPHER : $HF_5
 
 ; Optional, uncomment this to use the specified RSA private (not public) key.
 ; This must be in OpenSSH format, not Putty PPK
 ; May be overridden in the command-line as: --private_key=<ssh_rsa_key>
 ;SSH_PRIVATE_KEY_FILE : /path/rsa_private_key
-; Or to define per-host:
+; Or to define per-host (change column # to suit) :
 ;SSH_PRIVATE_KEY_FILE : $HF_8
 
 ; ----------------------------------------------
