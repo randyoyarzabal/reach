@@ -12,8 +12,8 @@ Current Development (dev 1.0.3) Branch
 + Check for file existence of SSH_PRIVATE_KEY_FILE if defined as $HF_#
 + Re-tested support for RSA key with and without a passphrase
 + New config options:
-	CIPHER_KEY_FILE : optional external cipher-key string for password obfuscation
-	SSH_AGENT_ONLY : force ssh-agent only authentication
+    CIPHER_KEY_FILE : optional external cipher-key string for password obfuscation
+    SSH_AGENT_ONLY : force ssh-agent only authentication
 = Config options renamed:
     TRUST_HOSTS renamed to SSH_TRUST_HOSTS
     HOSTS_INPUT_FILE renamed to HOSTS_INVENTORY_FILE
@@ -30,14 +30,4 @@ Current Development (dev 1.0.3) Branch
 v1.0.2 [9-Oct-2017]
 ------------
 + Initial load into GitHub
-
-v1.0.1 [5-Dec-2016]:
-------------
-+ Added prompt detection.
-* Fixed a bug where Vyatta (configuration mode) prompt change was not being detected.
-* Fixed "Host Duration" simulation display
-
-v1.0.0 [4-Dec-2016]:
-------------
-+ Initial release.
 
