@@ -4,7 +4,11 @@ Steps for installing/using Reach:
 Get the latest stable build of Reach by manually downloading the Reach tree 
 [zip file](https://github.com/randyoyarzabal/reach/archive/v1.0.3.zip) OR with git via SSH:
 
+To get the master (stable) branch:
 > `git clone git@github.com:randyoyarzabal/reach.git`
+
+To get the development branch:
+> `git clone git@github.com:randyoyarzabal/reach.git --branch dev --single-branch <local path>`
 
 *Reach requires Python 2.x (not compatible with 3.x), paramiko, and pycrypto library modules, 
 if you already have it, skip to Step 2.*
