@@ -2,7 +2,7 @@ Known Issues
 ------------
 
 We've extensively tested Reach for production use for a variety of use cases against different target host
-types such as Linux, Mac, Vyatta, and Cisco devices.  However, we are aware of some issues and are continually
+types such as Linux, Mac, Vyatta, F5, and Cisco devices.  However, we are aware of some issues and are continually
 working towards enhancements.  Here are known issues:
 
 - Reach sends remote commands to a host via an SSH connection over a virtual terminal session. There is no easy
@@ -33,6 +33,6 @@ working towards enhancements.  Here are known issues:
             listening.  If it it's not, it will just hang at "Trying..."
         - An alternative is to use nc. for example, `echo "QUIT" | nc -w 5 192.168.2.100 8443`, if
             connected, it won't display any results, if not, it will display: "Ncat: Connection timed out."
-            You can then use the output as a done string (-d) condition.
+            You can then use the output as a done string (-s) condition.
 
 If in doubt, always run tests on a single host before running against many and use simulation mode (-x) to verify the actions that will be performed.

@@ -1,14 +1,33 @@
-Legend: + : added, - : removed, * : fixed
+Legend: + : added, - : removed, * : fixed, = : replaced
 
 https://github.com/randyoyarzabal/reach
 
-v1.0.1 [5-Dec-2016]:
+v1.0.3 [19-Oct-2018] - Latest Stable
 ------------
-+ Added prompt detection.
-* Fixed a bug where Vyatta (configuration mode) prompt change was not being detected.
-* Fixed "Host Duration" simulation display
++ Added “not equal“ filter operator as ‘!’
++ Added ‘—host_fields’ to display the headers with corresponding $HF_#
+* Improved authentication order: agent, private-key, user/password
+* Improved authentication exception messages
++ Added config comments regarding authentication types
++ Check for file existence of SSH_PRIVATE_KEY_FILE if defined as $HF_#
++ Re-tested support for RSA key with and without a passphrase
++ New config options:
+    CIPHER_KEY_FILE : optional external cipher-key string for password obfuscation
+    SSH_AGENT_ONLY : force ssh-agent only authentication
+= Config options renamed:
+    TRUST_HOSTS renamed to SSH_TRUST_HOSTS
+    HOSTS_INPUT_FILE renamed to HOSTS_INVENTORY_FILE
+    KEY_COLUMN renamed to IP_OR_HOST_COLUMN
+    HOST_MARKER renamed to HOST_DISPLAY_FORMAT
+    SSH_PRIVATE_KEY renamed to SSH_PRIVATE_KEY_FILE
+    SSH_PRIVATE_KEY_FILE now supports reading from inventory with $HF_#
+= Renamed command-line options:
+    -e “Filter” to -f
+    -d “Find String” to -s
+    -g “Debug” to -d
+    -s “Sudo” to -u
 
-v1.0.0 [4-Dec-2016]:
+v1.0.2 [9-Oct-2017]
 ------------
-+ Initial release.
++ Initial load into GitHub
 

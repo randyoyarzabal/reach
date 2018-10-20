@@ -7,6 +7,7 @@ import logging
 import time
 import sys
 import pdb
+import os
 
 
 class REORemoteHost(object):
@@ -14,8 +15,12 @@ class REORemoteHost(object):
     This class is wrapper for remote hosts currently implemented using paramiko for SSH
     which could in the future implemented as any type of host, SSH, telnet etc.
     """
-    SERVER_STATUS_NO_ACCESS = 'No access to server'
-    SERVER_STATUS_UNABLE_TO_REACH = 'Unable to reach server'
+    SERVER_STATUS_NO_ACCESS = 'Authentication failed. Check user/pass or key/passphrase.'
+    SERVER_STATUS_UNKNOWN_HOST = 'Not in known_hosts. Connect manually first, or set SSH_TRUST_HOSTS = True.'
+    SERVER_STATUS_HOST_CHANGED = 'Host key changed. Connect manually first, or set SSH_TRUST_HOSTS = True.'
+    SERVER_STATUS_UNABLE_TO_REACH = 'Unable to reach server. Check IP/Hostname or logs.'
+    SERVER_STATUS_SSH_ERROR = 'Unknown SSH error occurred. Check the logs.'
+    SERVER_STATUS_SSH_KEY_MISSING = 'Missing private key file.'
     SERVER_STATUS_CONNECTED = 'Connected'
     SERVER_STATUS_ERROR_PROMPT = 'Unable to detect initial prompt'
     STRINGS_DELIMITER = '|'
@@ -40,16 +45,16 @@ class REORemoteHost(object):
                           SPACE_KEY: '<SPACE KEY>'}
     """Dictionary of key strokes and their corresponding screen display text"""
 
-    def __init__(self, ip, prompt_regex=DEFAULT_PROMPT_REGEX, new_prompt_regex=DEFAULT_NEW_PROMPT_REGEX,
+    def __init__(self, host, prompt_regex=DEFAULT_PROMPT_REGEX, new_prompt_regex=DEFAULT_NEW_PROMPT_REGEX,
                  new_prompt=DEFAULT_NEW_PROMPT, usr=None, pwd=None, logger=None):
         """
         Class constructor
-        :param ip: IP address of host
+        :param host: IP address of host
         :param usr: User name
         :param pwd: Password
         """
-        self.ip = ip
-        """IP Address of host"""
+        self.host = host
+        """IP Address or Hostname"""
 
         self.usr = usr
         """User Name"""
@@ -105,7 +110,8 @@ class REORemoteHost(object):
         self.expected_prompt_regex = prompt_regex
         """Regex of the prompt used to detect command completion"""
 
-    def connect_host(self, set_prompt=True, u=None, p=None, f=None, conn_timeout=10, cmd_timeout=5, trust_hosts=False):
+    def connect_host(self, set_prompt=True, u=None, p=None, f=None, conn_timeout=10, cmd_timeout=5, trust_hosts=False,
+                     agent_only=False):
         """
         Establish connection with host
         :param set_prompt: Set a personalized prompt
@@ -120,7 +126,7 @@ class REORemoteHost(object):
         self.connected = False
         if self.util.debug:
             print ' '
-        self.log(logging.DEBUG, "Connecting to: " + self.ip, False)
+        self.log(logging.DEBUG, "Connecting to: " + self.host, False)
         if u: self.usr = u
         if f: self.key_file = f
         if p: self.pwd = p
@@ -143,28 +149,23 @@ class REORemoteHost(object):
 
         self.log(logging.DEBUG, "User Name: " + self.usr, False)
 
-        try:
-            if self.key_file:
-                self.log(logging.DEBUG, "RSA key file: " + self.key_file, False)
-                self.log(logging.DEBUG, "Using user-defined key file", False)
-                self.client.connect(self.ip, username=self.usr, timeout=conn_timeout,
-                                    allow_agent=True, key_filename=self.key_file,
-                                    password=self.pwd)
-            else:
-                self.log(logging.DEBUG, "Using password", False)
-                self.client.connect(self.ip, username=self.usr, password=self.pwd,
-                                    timeout=conn_timeout,
-                                    allow_agent=False)
+        # Try agent authentication
+        self.connected = self.__connect("Trying agent authentication.", self.host, self.usr, timeout=conn_timeout,
+                                        allow_agent=True, look_for_keys=True)
 
-            self.connected = True
-        except KeyboardInterrupt:
-            self.util.key_interrupt()
-        except (BadAuthenticationType, AuthenticationException, PartialAuthentication, SSHException):
-            self.connect_status_string = self.SERVER_STATUS_NO_ACCESS
-            self.log(logging.DEBUG, self.connect_status_string, False)
-        except:
-            self.connect_status_string = self.SERVER_STATUS_UNABLE_TO_REACH
-            self.log(logging.DEBUG, self.connect_status_string, False)
+        if not agent_only:
+
+            # Try user-defined private-key authentication
+            if not self.connected:
+                self.connected = self.__connect("Trying private key file: " + self.key_file, self.host, self.usr,
+                                                timeout=conn_timeout, private_key_file=self.key_file, password=self.pwd,
+                                                allow_agent=False, look_for_keys=False)
+
+            # Try user/password authentication
+            if not self.connected:
+                self.connected = self.__connect("Trying user('%s')/password(********): " % self.usr, self.host,
+                                                self.usr, password=self.pwd, timeout=conn_timeout,
+                                                allow_agent=False, look_for_keys=False)
 
         if self.connected:
             self.shell = self.client.invoke_shell()
@@ -183,6 +184,66 @@ class REORemoteHost(object):
             self.log(logging.DEBUG, self.connect_status_string, False)
 
         return self.connected
+
+    def __connect(self, msg, host, username, password=None, timeout=5, private_key_file=None, allow_agent=False,
+                  look_for_keys=False):
+        """
+        Helper method to facilitate various authentication methods and handling exceptions accordingly.
+        :param msg: message to display to screen
+        :param host: host or ip
+        :param username:
+        :param password:
+        :param timeout: connection timeout
+        :param private_key_file: location of private key
+        :param allow_agent:
+        :param look_for_keys:
+        :return: True if successfully connected, False otherwise.
+        """
+        connected = False
+        try:
+            self.log(logging.DEBUG, msg, False)
+            if private_key_file:
+                try:
+                    self.log(logging.DEBUG, "Decrypting private key...", False)
+                    if not os.path.isfile(private_key_file):
+                        raise AuthenticationException(self.SERVER_STATUS_SSH_KEY_MISSING)
+                    private_key = paramiko.RSAKey.from_private_key_file(filename=private_key_file, password=password)
+                    self.client.connect(host, username=username, timeout=timeout, pkey=private_key,
+                                        allow_agent=allow_agent, look_for_keys=look_for_keys)
+                    connected = True
+                except Exception as e:
+                    raise AuthenticationException(e)
+            if not connected:
+                self.client.connect(host, username=username, password=password, timeout=timeout,
+                                    allow_agent=allow_agent, look_for_keys=look_for_keys)
+            self.log(logging.DEBUG, "Success", False)
+            connected = True
+        except KeyboardInterrupt:
+            self.util.key_interrupt()
+        except BadHostKeyException as e:
+            self.connect_status_string = self.SERVER_STATUS_HOST_CHANGED
+            self.log(logging.DEBUG, self.connect_status_string, False)
+        except AuthenticationException as e:
+            err_str = str(e)
+            if self.SERVER_STATUS_SSH_KEY_MISSING in err_str:
+                self.connect_status_string = self.SERVER_STATUS_SSH_KEY_MISSING
+            else:
+                self.connect_status_string = self.SERVER_STATUS_NO_ACCESS
+                self.log(logging.DEBUG, self.connect_status_string, False)
+            self.log(logging.DEBUG, err_str, False)
+        except SSHException as e:
+            err_str = str(e)
+            if 'known_hosts' in err_str:
+                self.connect_status_string = self.SERVER_STATUS_UNKNOWN_HOST
+            else:
+                self.connect_status_string = err_str
+            self.log(logging.DEBUG, self.connect_status_string, False)
+        except Exception as e:
+            self.connect_status_string = self.SERVER_STATUS_UNABLE_TO_REACH
+            self.log(logging.DEBUG, self.connect_status_string, False)
+            self.log(logging.DEBUG, str(e), False)
+        finally:
+            return connected
 
     def set_password_from_file(self, f):
         """
@@ -232,7 +293,7 @@ class REORemoteHost(object):
         Try to set the prompt to a personalized one.
         :return: True/False for success/failure, output
         """
-        self.log(logging.DEBUG,"Set prompt start", False)
+        self.log(logging.DEBUG, "Set prompt start", False)
         # Setting the timeout for the shell to a lower value for this function only
         self.shell.settimeout(self.PROMPT_SET_TIMEOUT)
         self.shell.send("PS1=$PS1'" + self.new_prompt + "'\n")  # In case of sh-style
@@ -252,11 +313,12 @@ class REORemoteHost(object):
                 self.util.print_stack()
         self.shell.settimeout(self.cmd_timeout)
         self.expected_prompt_regex = self.new_prompt_regex
-        self.log(logging.DEBUG,"Set prompt success", False)
+        self.log(logging.DEBUG, "Set prompt success", False)
 
         return True, output
 
-    def send_cmd_wait_respond(self, command, search_string='', wait_string='', response_string='', last_run_log=None):
+    def send_cmd_wait_respond(self, command, search_string='', wait_string='', response_string='', last_run_log=None,
+                              cipher_key=REOUtility.CIPHER_KEY):
         """
         This method will send a command to the server and search for a "search" string.
         It can optionally, wait for subsequent strings and send a response string.
@@ -265,6 +327,7 @@ class REORemoteHost(object):
         :param search_string: Search string(s)
         :param wait_string: String(s) to expect
         :param response_string: String(s) to use as a response for wait_strings
+        :param cipher_key: 32 character cipher string for decrypting any $CT= values
         :return: Output of command, error_msg (or '')
         """
         # Check for wait conditions
@@ -311,7 +374,8 @@ class REORemoteHost(object):
                     cipher_text = re.search(re.escape(self.CIPHER_TEXT_MARKER) + '([^|]*)', rs)
                     if cipher_text is not None:
                         response_strings[i] = response_strings[i].replace(cipher_text.group(0),
-                                                                          REOUtility.decrypt_str(cipher_text.group(1)))
+                                                                          REOUtility.decrypt_str(cipher_text.group(1),
+                                                                                                 cipher_key))
                         response_display[i] = response_display[i].replace(cipher_text.group(0), '**********')
             wait_response_pair = zip(wait_strings, response_strings, response_display)
             if len(wait_response_pair) > 0:
@@ -422,7 +486,7 @@ class REORemoteHost(object):
                          "Wait keys found but response not sent because prompt immediately returned: " + keys_found,
                          False)
                 print (
-                    "  - Wait strings found but response not sent because prompt immediately returned: " + keys_found + "")
+                        "  - Wait strings found but response not sent because prompt immediately returned: " + keys_found + "")
 
         if self.__detect_sudo(command):
             prompt_set, output = self.set_prompt()
@@ -486,4 +550,4 @@ class REORemoteHost(object):
             self.client.close()
             closed = True
         if closed:
-            self.log(logging.DEBUG, 'Connection to ' + self.ip + ' closed', False)
+            self.log(logging.DEBUG, 'Connection to ' + self.host + ' closed', False)
