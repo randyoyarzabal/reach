@@ -87,7 +87,7 @@ SSH_CONNECTION_TIMEOUT : 5
 SSH_COMMAND_TIMEOUT : 10
 
 ; Optional, will log in "logs" directory if this is commented.
-;LOGS_DIRECTORY : /Users/randyo/dev/reach/logs/
+;LOGS_DIRECTORY : /path/logs/
 
 ; Valid values: DEBUG, INFO, WARNING, ERROR, CRITICAL
 LOG_LEVEL : DEBUG
