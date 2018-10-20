@@ -2,7 +2,7 @@ Legend: + : added, - : removed, * : fixed, = : replaced
 
 https://github.com/randyoyarzabal/reach
 
-Current Development (dev 1.0.3) Branch
+v1.0.3 [19-Oct-2018] - Latest Stable
 ------------
 + Added “not equal“ filter operator as ‘!’
 + Added ‘—host_fields’ to display the headers with corresponding $HF_#
