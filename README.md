@@ -1,11 +1,12 @@
 Reach is a tool that sends SSH commands to one or more hosts.  It is similar to Ansible except instead of defining YAML 
-files, you can send it a series of SSH commands directly to any (or all) of the hosts defined in the inventory using 
-on-the-fly filters.  Though it was specifically written for network device management like Cisco, F5, and Brocade, 
-it is also designed to work on any remote host accessible via SSH like any Linux/Unix-based hosts.
+files, you can use your existing CSV inventory to send raw/direct series of SSH commands directly to any (or all) of your
+hosts using on-the-fly filters making it perfect for any Network or Linux administrator.  Though it was originally written 
+for network device management like Cisco, F5, and Brocade, it is also designed to work on any remote host accessible via 
+SSH especially those that are Linux/Unix-based.
 
 ##### Notable features:
-- Send SSH commands directly to quickly adopt changes to your fleet of hosts.
-- Get up and running quickly using an existing CSV or Excel file of hosts inventory.
+- Send SSH commands directly to quickly search and adopt changes to your fleet of hosts.
+- Get up-and-running quickly using an existing CSV or Excel file of hosts inventory.
 - On-the-fly filters using columns in the inventory file.
 - Similar to playbooks, create a batch-file of commands to run remotely or locally.
 - Password and input text obfuscation.
@@ -18,9 +19,8 @@ it is also designed to work on any remote host accessible via SSH like any Linux
 
 #### Tested Use Cases
 
-- Firewall rules validation
-- Network device configuration (e.g. Cisco, F5, Brocade etc. equipment)
-- Firewall / host backups
+- Network/host Device management (e.g. Cisco, F5, Brocade etc.)
+- Firewall (ASA, and Brocade/Vyatta) management configuration
 - Middleware installation/support management
 - Host package management
 - User and Password management
@@ -43,8 +43,9 @@ it is also designed to work on any remote host accessible via SSH like any Linux
     ./reach.py -v
     ./reach.py -a
     ./reach.py --cipher_text=<password>
+    ./reach.py --host_fields
     ./reach.py -b commands_file [-x] [-d] ...
-    ./reach.py -c command [-s find_string [-r report_string]] [-w wait_string -p response_string] ...
+    ./reach.py -c command [-s search_string [-r report_string]] [-w wait_string -p response_string] ...
 
     Optionally, for any mode:
     ./reach.py [--config=<config_file>] [-i inventory_file] [-k column_key] [-x] [-d]
@@ -63,13 +64,13 @@ it is also designed to work on any remote host accessible via SSH like any Linux
 #### Optional for all Modes 
 
     --config=<config_file> Override the default config.ini (located in the configs directory)
-    -x : SIMULATION Mode (no connection/commands invoked)
-    -d : DEBUG Mode
     -i <inventory_file> : Inventory (hosts) file (comma separated, define header key with -k)
       -k <key_column> : [Required with -i] Column header of keys
     -f <filter> : Filter hosts to process. Operators are supported: = equal, ! not equal, | or, ~ contains, & and.
-        Note: Reach does not support mixed (& and |) in this release.
-        Example conditions: 'Build=WHC0122' , 'Build=WHC0122&Host~app, 'Build=WHC0122|Host~app|Host~dom'
+        Note: Reach does not support mixed (& and |) in this release yet.
+        Example conditions: 'Build=WHC0122' , 'Build!WHC0122', 'Build=WHC0122&Host~app, 'Build=WHC0122|Host~app|Host~dom'
+    -x : SIMULATION Mode (no connection/commands invoked)
+    -d : DEBUG Mode
 
 #### Optional for Command (-c) Mode
 ##### *Note that for Batch Mode, these are internally defined in the commands file.*
