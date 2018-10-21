@@ -51,8 +51,9 @@ Synopsis:
     ./reach.py -v
     ./reach.py -a
     ./reach.py --cipher_text=<password>
+    ./reach.py --host_fields
     ./reach.py -b commands_file [-x] [-d] ...
-    ./reach.py -c command [-s find_string [-r report_string]] [-w wait_string -p response_string] ...
+    ./reach.py -c command [-s search_string [-r report_string]] [-w wait_string -p response_string] ...
 
     Optionally, for any mode:
     ./reach.py [--config=<config_file>] [-i inventory_file] [-k column_key] [-x] [-d]
@@ -68,13 +69,13 @@ Operation Modes:
 
 Optional for all modes:
     --config=<config_file> Override the default config.ini (located in the configs directory)
-    -x : SIMULATION Mode (no connection/commands invoked)
-    -d : DEBUG Mode
     -i <inventory_file> : Inventory (hosts) file (comma separated, define header key with -k)
       -k <key_column> : [Required with -i] Column header of keys
     -f <filter> : Filter hosts to process. Operators are supported: = equal, ! not equal, | or, ~ contains, & and.
         Note: Reach does not support mixed (& and |) in this release yet.
-        Example conditions: 'Build=WHC0122' , 'Build=WHC0122&Host~app, 'Build=WHC0122|Host~app|Host~dom'
+        Example conditions: 'Build=WHC0122' , 'Build!WHC0122', 'Build=WHC0122&Host~app, 'Build=WHC0122|Host~app|Host~dom'
+    -x : SIMULATION Mode (no connection/commands invoked)
+    -d : DEBUG Mode
 
 Optional for Command (-c) mode. Note that for Batch (-b) Mode, these are internally defined in the commands file.
     -o : Show command console output (ignored in batch (-b option) mode)
