@@ -2,22 +2,22 @@ Steps for installing/using Reach:
 --------------------------------
 
 Get the latest stable build of Reach by manually downloading the Reach tree 
-[zip file](https://github.com/randyoyarzabal/reach/archive/v1.0.3.zip) OR with git via SSH:
+[zip file](https://github.com/randyoyarzabal/reach/archive/v1.0.3.zip) OR with git:
 
 To get the master (stable) branch:
-> `git clone git@github.com:randyoyarzabal/reach.git`
+> `git clone https://github.com/randyoyarzabal/reach.git`
 
 To get the development branch:
-> `git clone git@github.com:randyoyarzabal/reach.git --branch dev --single-branch <local path>`
+> `git clone https://github.com/randyoyarzabal/reach.git --branch dev --single-branch <local path>`
 
-*Reach requires Python 2.x (not compatible with 3.x), paramiko, and pycrypto library modules, 
+*Reach requires Python 2.x (NOT 3.x) with standard libs, paramiko, and pycrypto library modules, 
 if you already have it, skip to Step 2.*
 
 1. Install required modules: 
 
     >`pip install paramiko pycrypto`
     
-2. Create a copy of [docs/templates/config_template.ini](../templates/config_template.ini) 
+2. Create a copy of [docs/templates/config_template.ini](templates/config_template.ini) 
 as `config.ini` (exact name required) in the `configs` directory by default. Or, create it with any name you choose 
 and pass it to Reach like this: `./reach.py --config_file=<config file>`
 
@@ -25,7 +25,7 @@ and pass it to Reach like this: `./reach.py --config_file=<config file>`
 of fields required but at a minimum, you need an IP Address or Hostname (FQDN) column and must be comma-separated with 
 a header column. You can optionally have other columns so you can selectively process hosts, or use host specific data 
 like username, password (in cipher text), private key location etc. 
-See sample [docs/templates/hosts_file_sample.csv](../templates/hosts_file_sample.csv).  The columns and specific types 
+See sample [docs/templates/hosts_file_sample.csv](templates/hosts_file_sample.csv).  The columns and specific types 
 are up to you, as long as it is in CSV (comma-delimited) format and you define a `IP_OR_HOST_COLUMN` (`-k`).
 It is recommended you have categorical columns so you can use `-f` later to filter your hosts. 
 

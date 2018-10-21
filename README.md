@@ -29,7 +29,7 @@ SSH especially those that are Linux/Unix-based.
 
 #### Installation
 
-   See the [INSTALL.md](docs/installation/INSTALL.md) file in the `docs/installation/` folder.
+   See the [INSTALL.md](docs/INSTALL.md) file in the `docs/installation/` folder.
    
 #### Sample Prerequisite Files
 
