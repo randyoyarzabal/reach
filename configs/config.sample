@@ -30,6 +30,9 @@ HOST_DISPLAY_FORMAT : $HF_4@$HF_1 ($HF_2): $HF_3
 ; Uncomment by removing the leading ';' to use.
 ; ----------------------------------------------
 
+; Optional, will log in "logs" directory within Reach's root dir if this is commented.
+;LOGS_DIRECTORY : /path/logs/
+
 ; Optional but highly recommended for security.  Suggest this file is in a separate
 ; directory with chmod 600 permissions.
 ; File containing a cipher key. A string of exactly 32 random characters used
@@ -85,9 +88,6 @@ SSH_CONNECTION_TIMEOUT : 5
 ; Important to set this higher than your longest running command you plan to run.  But set it too high
 ; Reach won't move to the next command if the command hangs.
 SSH_COMMAND_TIMEOUT : 10
-
-; Optional, will log in "logs" directory if this is commented.
-;LOGS_DIRECTORY : /path/logs/
 
 ; Valid values: DEBUG, INFO, WARNING, ERROR, CRITICAL
 LOG_LEVEL : DEBUG

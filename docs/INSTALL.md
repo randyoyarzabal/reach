@@ -10,8 +10,7 @@ To get the master (stable) branch:
 To get the development branch:
 > `git clone https://github.com/randyoyarzabal/reach.git --branch dev --single-branch <local path>`
 
-*Reach requires Python 2.x (NOT 3.x) with standard libs, paramiko, and pycrypto library modules, 
-if you already have it, skip to Step 2.*
+*Reach requires Python 2.x (NOT 3.x), paramiko, and pycrypto library modules, if you already have it, skip to Step 2.*
 
 1. Install required modules: 
 
