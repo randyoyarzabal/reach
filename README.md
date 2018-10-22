@@ -1,4 +1,4 @@
-### Introduction
+## Introduction
 
 Reach is a tool that sends SSH commands to one or more hosts.  It is similar to Ansible except instead of defining YAML 
 files, you can use your existing CSV inventory to send raw/direct series of SSH commands directly to any (or all) of your
@@ -6,7 +6,7 @@ hosts using on-the-fly filters making it perfect for any Network or Linux admini
 for network device management like Cisco, F5, and Brocade, it is also designed to work on any remote host accessible via 
 SSH especially those that are Linux/Unix-based.
 
-### Contents
+## Contents
 - [Features](#features)
 - [Tested Use Cases](#tested-use-cases)
 - [Installation](#installation)
@@ -22,7 +22,7 @@ SSH especially those that are Linux/Unix-based.
 - [Developers](#developers)
 - [Git Repository](git-repository)
 
-### Features
+## Features
 
 - Send SSH commands directly to quickly search and adopt changes to your fleet of hosts.
 - Get up-and-running quickly using an existing CSV or Excel file of hosts inventory.
@@ -31,7 +31,7 @@ SSH especially those that are Linux/Unix-based.
 - Password and input text obfuscation.
 - Interactive commands support via wait (expect) and send (put) strings. 
 
-### Tested Use Cases
+## Tested Use Cases
 
 - Network/host Device management (e.g. Cisco, F5, Brocade etc.)
 - Firewall (ASA, and Brocade/Vyatta) management configuration
@@ -45,13 +45,13 @@ SSH especially those that are Linux/Unix-based.
 
    See the [INSTALL.md](docs/INSTALL.md) file in the `docs` folder.
    
-### Sample Prerequisite Files
+## Sample Prerequisite Files
 
    - [Inventory/hosts](docs/templates/hosts_file_sample.csv) file
    - [Configuration](docs/templates/config_template.ini) file
    - [Batch commands](docs/templates/sample_commands.csv) file
 
-### Synopsis
+## Synopsis
 
     ./reach.py -?
     ./reach.py -v
@@ -64,18 +64,18 @@ SSH especially those that are Linux/Unix-based.
     Optionally, for any mode:
     ./reach.py [--config=<config_file>] [-i inventory_file] [-k column_key] [-x] [-d]
 
-### Usage and Help
+## Usage and Help
 
     -? : This help screen
     -v : Display version information only
 
-### Operation Modes
+## Operation Modes
 
     -a : Access Check only
     -b <commands file> : Run Batch Commands (comma separated file, see template for format/options)
     -c <command> : Run Command 
 
-### Optional for all Modes 
+## Optional for all Modes 
 
     --config=<config_file> Override the default config.ini (located in the configs directory)
     -i <inventory_file> : Inventory (hosts) file (comma separated, define header key with -k)
@@ -86,7 +86,7 @@ SSH especially those that are Linux/Unix-based.
     -x : SIMULATION Mode (no connection/commands invoked)
     -d : DEBUG Mode
 
-### Optional for Command Mode
+## Optional for Command Mode
 #### *Note that for Batch Mode, these are internally defined in the commands file.*
 
     -o : Show command console output (ignored in batch (-b option) mode)
@@ -113,11 +113,11 @@ SSH especially those that are Linux/Unix-based.
             $CT=<password in cipher text> : Used for sending passwords to the terminal like changing passwords 
               or sending Cisco ASA passwords in "enable" mode.  
 
-### Special modes
+## Special modes
     --cipher_text : generate cipher text from a password for use in SSH_PASSWORD_CIPHER or $CT=<cipher_text> (-p)
     --host_fields : return a list of column headers (with $HF_#) from the host file
 
-### Examples
+## Examples
 
     - Run 'yum -y install gdb' as root, look for the strings: 'Nothing' or 'Complete', then display
         'Installed' or 'Not Installed' on the screen. Process hosts matching 'Build' column = 'WHC038'
@@ -140,7 +140,7 @@ SSH especially those that are Linux/Unix-based.
     ./reach.py -c 'passwd randyo' -w 'New|Retype' -p 'mypass3|mypass3' -s 'successfully' -r 'Changed password'
     Remember that -p supports $CT=<cipher text> to obfuscate the password. So it would be: -p '$CT=xxxxx|$CT=xxxxx'
 
-### Helpful Tips
+## Helpful Tips
 
     - Always be sure to run in SIMULATION (-x) mode first to see what the script is about to do!
     NOTE: Some of the example below use specific details that may not pertain to your use and is 
@@ -164,10 +164,10 @@ SSH especially those that are Linux/Unix-based.
     - Be sure to set SSH_COMMAND_TIMEOUT higher than the longest anticipated command duration. But not too high because
       if a command hangs, it will wait for that duration before timing out.
 
-### Developers
+## Developers
 
 - Randy Oyarzabal 
 - Francis Lan
 
-### Git Repository
+## Git Repository
 [https://github.com/randyoyarzabal/reach](https://github.com/randyoyarzabal/reach)
