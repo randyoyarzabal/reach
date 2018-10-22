@@ -4,7 +4,7 @@ hosts using on-the-fly filters making it perfect for any Network or Linux admini
 for network device management like Cisco, F5, and Brocade, it is also designed to work on any remote host accessible via 
 SSH especially those that are Linux/Unix-based.
 
-##### Notable features:
+##### Features:
 - Send SSH commands directly to quickly search and adopt changes to your fleet of hosts.
 - Get up-and-running quickly using an existing CSV or Excel file of hosts inventory.
 - On-the-fly filters using columns in the inventory file.
