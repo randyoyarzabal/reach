@@ -11,6 +11,16 @@ SSH especially those that are Linux/Unix-based.
 - [Tested Use Cases](#tested-use-cases)
 - [Installation](#installation)
 - [Sample Prerequisite Files](#sample-prerequisite-files)
+- [Synopsis](#synopsis)
+- [Usage / Help](#usage-and-help)
+- [Operation Modes](#operation-modes)
+- [Optional for all Modes](#optional-for-all-modes)
+- [Optional for Command (-c) Mode](#optional-for-command-mode)
+- [Special modes](#special-modes)
+- [Examples](#examples)
+- [Helpful Tips](#helpful-tips)
+- [Developers](#developers)
+- [Git Repository](git-repository)
 
 ### Features
 
@@ -54,7 +64,7 @@ SSH especially those that are Linux/Unix-based.
     Optionally, for any mode:
     ./reach.py [--config=<config_file>] [-i inventory_file] [-k column_key] [-x] [-d]
 
-### Help / Usage
+### Usage and Help
 
     -? : This help screen
     -v : Display version information only
@@ -76,7 +86,7 @@ SSH especially those that are Linux/Unix-based.
     -x : SIMULATION Mode (no connection/commands invoked)
     -d : DEBUG Mode
 
-### Optional for Command (-c) Mode
+### Optional for Command Mode
 #### *Note that for Batch Mode, these are internally defined in the commands file.*
 
     -o : Show command console output (ignored in batch (-b option) mode)
