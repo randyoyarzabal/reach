@@ -1,13 +1,11 @@
-import paramiko
-import socket
-import re
-from REOUtility import REOUtility
-from paramiko.ssh_exception import *
 import logging
-import time
-import sys
-import pdb
 import os
+import re
+
+import paramiko
+from paramiko.ssh_exception import *
+
+from REOUtility import REOUtility
 
 
 class REORemoteHost(object):
@@ -67,6 +65,9 @@ class REORemoteHost(object):
 
         self.util = REOUtility()
         """Utility instance"""
+
+        self.cipher_key = None
+        """Cipher key used for encrypt/decrypt of host password and $CT= values"""
 
         self.connect_status_string = ''
         """Connection status string"""
@@ -317,8 +318,7 @@ class REORemoteHost(object):
 
         return True, output
 
-    def send_cmd_wait_respond(self, command, search_string='', wait_string='', response_string='', last_run_log=None,
-                              cipher_key=REOUtility.CIPHER_KEY):
+    def send_cmd_wait_respond(self, command, search_string='', wait_string='', response_string='', last_run_log=None):
         """
         This method will send a command to the server and search for a "search" string.
         It can optionally, wait for subsequent strings and send a response string.
@@ -375,14 +375,14 @@ class REORemoteHost(object):
                     if cipher_text is not None:
                         response_strings[i] = response_strings[i].replace(cipher_text.group(0),
                                                                           REOUtility.decrypt_str(cipher_text.group(1),
-                                                                                                 cipher_key))
+                                                                                                 self.cipher_key))
                         response_display[i] = response_display[i].replace(cipher_text.group(0), '**********')
             wait_response_pair = zip(wait_strings, response_strings, response_display)
             if len(wait_response_pair) > 0:
                 will_wait_respond = True
 
         # Send the command to the host
-        self.shell.send(command + "\n")
+        self.shell.send(command + "echo \n")
 
         command_completed = False
         error_msg = ''

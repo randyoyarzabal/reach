@@ -7,8 +7,8 @@ import os
 import re
 import sys
 
-from reolib import *
 from reachlib import *
+from reolib import *
 
 
 class Reach(REOScript):
@@ -50,7 +50,7 @@ Synopsis:
     ./reach.py -?
     ./reach.py -v
     ./reach.py -a
-    ./reach.py --cipher_text=<password>
+    ./reach.py --cipher_text
     ./reach.py --host_fields
     ./reach.py -b commands_file [-x] [-d] ...
     ./reach.py -c command [-s search_string [-r report_string]] [-w wait_string -p response_string] ...
@@ -83,7 +83,7 @@ Optional for Command (-c) mode. Note that for Batch (-b) Mode, these are interna
     -h : Halt looping through hosts when first done string (-s) is found
 
 Special modes:
-    --cipher_text=<password> : return the password in cipher text to put in the password file
+    --cipher_text : generate cipher text from a password for use in SSH_PASSWORD_CIPHER or $CT=<cipher_text> (-p)
     --host_fields : return a list of column headers (with $HF_#) from the host file
 
     The following can use hosts file column variables ($HF_#) delimited by '|':
@@ -144,15 +144,16 @@ Tips:
         opts = None
         try:
             opts, args = getopt.getopt(argv, 'ab:c:xdvof:i:k:uhs:w:p:r:?',
-                                       ["config=", "username=", "password=", "private_key=", "cipher_text=",
+                                       ["config=", "username=", "password=", "private_key=", "cipher_text",
                                         "host_fields"])
         except KeyboardInterrupt:
             REOUtility.key_interrupt()
         except getopt.GetoptError as e:
-            print "Invalid option: %s" % str(e)
+            print "Invalid argument: %s" % str(e)
             self.author(show_help=True)
             sys.exit(2)
         if len(opts) == 0 or len(args) > 0:
+            print "Invalid argument(s) combination passed."
             self.author(show_desc=True, show_help=True)
             sys.exit(2)
 
@@ -200,16 +201,18 @@ Tips:
 
         if config[OPERATION] == CIPHER:
             self.author()
-            print ("Warning: this cipher text form is only useful in Reach.  It is by no means secure.\n"
-                   "It is simply meant to conceal/obfuscate and prevent passwords from being displayed in clear-text.\n")
+            input_pass = REOUtility.prompt_user_password(user_prompt=False, desc="Convert to cipher text ==>")
+            print ("\nWarning: this cipher text form is only useful in Reach.  It is by no means secure.\n"
+                   "It is simply meant to conceal/obfuscate and prevent passwords from being displayed in clear-text.\n"
+                   "It is useful in the SSH_PASSWORD_CIPHER config or as $CT=<cipher_text> with the -p option.\n")
             if config[CIPHER_KEY_FILE]:
                 print "The cipher-key file: %s was used. " % config[CIPHER_KEY_FILE]
-                print "Note that decryption of the text below will only work with this file."
                 cipher_key = REOUtility.get_string_from_file(config[CIPHER_KEY_FILE])
             else:
+                print "Warning: using built-in cipher-key.  It is recommended to set 'CIPHER_KEY_FILE' config."
                 cipher_key = REOUtility.CIPHER_KEY
-
-            print "\nCipher text: '" + REOUtility.encrypt_str(cli_config[CIPHER], cipher_key) + "'"
+            print "Note that decryption of the text below will only work with the cipher key it is encrypted with."
+            print "\nCipher text: '" + REOUtility.encrypt_str(input_pass[1], cipher_key) + "'"
             sys.exit(0)
 
         # Forbidden opts when using -b

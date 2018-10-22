@@ -1,10 +1,10 @@
-from reolib.REODelimitedFile import REODelimitedFile
-from reolib.REOUtility import REOUtility
-from reolib.REORemoteHost import REORemoteHost
-from reachlib.SSHWorkerConfig import *
 import re
-import pdb
 import sys
+
+from reachlib.SSHWorkerConfig import *
+from reolib.REODelimitedFile import REODelimitedFile
+from reolib.REORemoteHost import REORemoteHost
+from reolib.REOUtility import REOUtility
 
 
 class BaseREOSSHWorker(object):
@@ -146,18 +146,22 @@ class BaseREOSSHWorker(object):
         """
         retval = True
         self.util.start_timer()
+
         self.rhost = REORemoteHost(self.host_or_ip, config[PROMPT_REGEX], config[NEW_PROMPT_REGEX],
                                    config[NEW_PROMPT], logger=self.logger)
+
+        if config[CIPHER_KEY_FILE]:
+            self.rhost.cipher_key = REOUtility.get_string_from_file(config[CIPHER_KEY_FILE])
+        else:
+            self.rhost.cipher_key = REOUtility.CIPHER_KEY
+
         self.rhost.ssh_lib_log = config[LOGS_DIRECTORY] + config[SSH_LOG_FILE]
         self.rhost.util.toggle_debug(config[DEBUG_FLAG])
         self.rhost.usr = self.replace_column_vars(config[SSH_USER_NAME])
 
         if config[SSH_PASSWORD_CIPHER]:
-            if config[CIPHER_KEY_FILE]:
-                cipher_key = REOUtility.get_string_from_file(config[CIPHER_KEY_FILE])
-            else:
-                cipher_key = REOUtility.CIPHER_KEY
-            self.rhost.pwd = REOUtility.decrypt_str(self.replace_column_vars(config[SSH_PASSWORD_CIPHER]), cipher_key)
+            self.rhost.pwd = REOUtility.decrypt_str(self.replace_column_vars(config[SSH_PASSWORD_CIPHER]),
+                                                    self.rhost.cipher_key)
         else:
             self.rhost.pwd = config[SSH_PASSWORD]
 
@@ -225,15 +229,10 @@ class BaseREOSSHWorker(object):
             self.log(logging.INFO, "Running command: \'" + self.command_string + "\'", False)
 
         if self.search_string or self.wait_string:
-            if config[CIPHER_KEY_FILE]:
-                cipher_key = REOUtility.get_string_from_file(config[CIPHER_KEY_FILE])
-            else:
-                cipher_key = REOUtility.CIPHER_KEY
-
             # Send the command to the server and wait for a string
             output, error_msg = self.rhost.send_cmd_wait_respond(self.command_string, self.search_string,
                                                                  self.wait_string, self.response_string,
-                                                                 self.last_run_log, cipher_key=cipher_key)
+                                                                 self.last_run_log)
             # skip the rest of the if statement if error_msg != '' ?
             w = self.rhost.search_string_isfound
 

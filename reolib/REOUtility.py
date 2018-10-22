@@ -1,15 +1,15 @@
+import base64
+import datetime
+import getpass
+import json
+import logging
+import re
 import socket
 import subprocess
-import datetime
-import re
 import traceback
-from Crypto.Cipher import XOR
-import base64
-import json
-import getpass
-import logging
-import pdb
 from logging.handlers import RotatingFileHandler
+
+from Crypto.Cipher import XOR
 
 
 class REOUtility:

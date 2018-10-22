@@ -1,6 +1,3 @@
-import os
-
-
 class REOScript(object):
     """
     This class is a base class for all scripts using reolib.

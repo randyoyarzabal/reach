@@ -42,7 +42,7 @@ SSH especially those that are Linux/Unix-based.
     ./reach.py -?
     ./reach.py -v
     ./reach.py -a
-    ./reach.py --cipher_text=<password>
+    ./reach.py --cipher_text
     ./reach.py --host_fields
     ./reach.py -b commands_file [-x] [-d] ...
     ./reach.py -c command [-s search_string [-r report_string]] [-w wait_string -p response_string] ...
@@ -100,7 +100,7 @@ SSH especially those that are Linux/Unix-based.
               or sending Cisco ASA passwords in "enable" mode.  
 
 #### Special modes
-    --cipher_text=<password> : return the password in cipher text to put in the password file
+    --cipher_text : generate cipher text from a password for use in SSH_PASSWORD_CIPHER or $CT=<cipher_text> (-p)
     --host_fields : return a list of column headers (with $HF_#) from the host file
 
 #### Examples

@@ -2,8 +2,10 @@ Legend: + : added, - : removed, * : fixed, = : replaced
 
 https://github.com/randyoyarzabal/reach
 
-v1.0.3 [19-Oct-2018] - Latest Stable
+v1.0.3 [21-Oct-2018] - Latest Stable
 ------------
+- Removed --cipher_text= from being passed. Now prompts instead.
+* Optimized library imports.
 + Added “not equal“ filter operator as ‘!’
 + Added ‘—host_fields’ to display the headers with corresponding $HF_#
 * Improved authentication order: agent, private-key, user/password
