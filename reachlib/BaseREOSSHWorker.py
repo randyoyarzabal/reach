@@ -1,10 +1,10 @@
-from reolib.REODelimitedFile import REODelimitedFile
-from reolib.REOUtility import REOUtility
-from reolib.REORemoteHost import REORemoteHost
-from reachlib.SSHWorkerConfig import *
 import re
-import pdb
 import sys
+
+from reachlib.SSHWorkerConfig import *
+from reolib.REODelimitedFile import REODelimitedFile
+from reolib.REORemoteHost import REORemoteHost
+from reolib.REOUtility import REOUtility
 
 
 class BaseREOSSHWorker(object):
@@ -21,13 +21,13 @@ class BaseREOSSHWorker(object):
         self.rhost = None
         """SSH Host"""
 
-        self.current_ip = ''
-        """Current IP being processed"""
+        self.host_or_ip = ''
+        """Current Hostname or IP being processed"""
 
         self.current_host = None
         """Current host being processed"""
 
-        self.hosts = REODelimitedFile(config[HOSTS_INPUT_FILE], ',', has_header=True)
+        self.hosts = REODelimitedFile(config[HOSTS_INVENTORY_FILE], ',', has_header=True)
         """Main hosts file for processing"""
 
         self.util = REOUtility(config[DEBUG_FLAG])
@@ -88,43 +88,43 @@ class BaseREOSSHWorker(object):
 
         self.show_header_confirmation()
 
-        log_str = ("# This file is only relevant/useful for a single command (-c) with a (-d or -r) defined.\n"
+        log_str = ("# This file is only relevant/useful for a single command (-c) with a (-s or -r) defined.\n"
                    "# It is meant to be pasted in a new column spreadsheet of the hosts file.\n")
 
-        if config[CONDITION_STRING]:
-            log_str += "# Filtered results: " + config[CONDITION_STRING] + "\n"
-            self.log(logging.WARNING, "Filtered results: " + config[CONDITION_STRING], False)
+        if config[FILTER_STRING]:
+            log_str += "# Filtered results: " + config[FILTER_STRING] + "\n"
+            self.log(logging.WARNING, "Filtered results: " + config[FILTER_STRING], False)
 
         self.last_run_log.write(log_str)
 
         for host in self.hosts:
             self.current_host = host
-            self.current_ip = self.hosts.get_row_val(name=config[KEY_COLUMN])
+            self.host_or_ip = self.hosts.get_row_val(name=config[IP_OR_HOST_COLUMN])
 
-            if config[CONDITION_STRING]:
+            if config[FILTER_STRING]:
                 try:
                     # TODO: Handle complex conditions with mixed & and |
-                    if STRINGS_MULTI_CONDITION in config[CONDITION_STRING]:
-                        conditions = config[CONDITION_STRING].split(STRINGS_MULTI_CONDITION)
+                    if STRINGS_MULTI_CONDITION in config[FILTER_STRING]:
+                        conditions = config[FILTER_STRING].split(STRINGS_MULTI_CONDITION)
                         alltrue = True
-                    elif STRINGS_DELIMITER in config[CONDITION_STRING]:
-                        conditions = config[CONDITION_STRING].split(STRINGS_DELIMITER)
+                    elif STRINGS_DELIMITER in config[FILTER_STRING]:
+                        conditions = config[FILTER_STRING].split(STRINGS_DELIMITER)
                         alltrue = False
                     else:
-                        conditions = [config[CONDITION_STRING]]
+                        conditions = [config[FILTER_STRING]]
 
                     conditions_values = map(lambda condition: self.__eval_condition(condition), conditions)
                     skip_host = not reduce(lambda x, y: x & y if alltrue else x | y, conditions_values)
 
                     if skip_host:
-                        self.log(logging.DEBUG, self.current_ip + ' - does not meet condition: ' + config[
-                            CONDITION_STRING] + ' == Skipping', False)
+                        self.log(logging.DEBUG, self.host_or_ip + ' - does not meet filter: ' + config[
+                            FILTER_STRING] + ' == Skipping', False)
                         continue  # Skipping host...
                 except KeyboardInterrupt:
                     self.util.key_interrupt()
 
             self.phost_count += 1
-            if not config[RUN_IN_SIMULATION_MODE]:
+            if not config[SIMULATION_MODE]:
                 if not self.host_worker():
                     break  # Stop loop if concrete method returns False
             else:
@@ -146,31 +146,40 @@ class BaseREOSSHWorker(object):
         """
         retval = True
         self.util.start_timer()
-        self.rhost = REORemoteHost(self.current_ip, config[PROMPT_REGEX], config[NEW_PROMPT_REGEX],
+
+        self.rhost = REORemoteHost(self.host_or_ip, config[PROMPT_REGEX], config[NEW_PROMPT_REGEX],
                                    config[NEW_PROMPT], logger=self.logger)
+
+        if config[CIPHER_KEY_FILE]:
+            self.rhost.cipher_key = REOUtility.get_string_from_file(config[CIPHER_KEY_FILE])
+        else:
+            self.rhost.cipher_key = REOUtility.CIPHER_KEY
+
         self.rhost.ssh_lib_log = config[LOGS_DIRECTORY] + config[SSH_LOG_FILE]
         self.rhost.util.toggle_debug(config[DEBUG_FLAG])
         self.rhost.usr = self.replace_column_vars(config[SSH_USER_NAME])
 
         if config[SSH_PASSWORD_CIPHER]:
-            self.rhost.pwd = REOUtility.decrypt_str(self.replace_column_vars(config[SSH_PASSWORD_CIPHER]))
+            self.rhost.pwd = REOUtility.decrypt_str(self.replace_column_vars(config[SSH_PASSWORD_CIPHER]),
+                                                    self.rhost.cipher_key)
         else:
             self.rhost.pwd = config[SSH_PASSWORD]
 
-        self.rhost.key_file = self.replace_column_vars(config[SSH_PRIVATE_KEY])
+        self.rhost.key_file = self.replace_column_vars(config[SSH_PRIVATE_KEY_FILE])
         self.rhost.str_vars_exist = self.str_vars_exist
 
-        if config[HOST_MARKER]:
-            print self.__get_process_str() + self.replace_column_vars(config[HOST_MARKER]) + " ...",
-            self.log(logging.INFO, "Processing host: " + self.replace_column_vars(config[HOST_MARKER]))
+        if config[HOST_DISPLAY_FORMAT]:
+            print self.__get_process_str() + self.replace_column_vars(config[HOST_DISPLAY_FORMAT]) + " ...",
+            self.log(logging.INFO, "Processing host: " + self.replace_column_vars(config[HOST_DISPLAY_FORMAT]))
         else:
-            print self.__get_process_str() + self.current_ip + " ...",
-            self.log(logging.INFO, "Processing host: " + self.current_ip)
+            print self.__get_process_str() + self.host_or_ip + " ...",
+            self.log(logging.INFO, "Processing host: " + self.host_or_ip)
         sys.stdout.flush()
 
         connected = self.rhost.connect_host(set_prompt=config[OPERATION] != OPERATION_ACCESS,
                                             conn_timeout=config[SSH_CONNECTION_TIMEOUT],
-                                            cmd_timeout=config[SSH_COMMAND_TIMEOUT], trust_hosts=config[TRUST_HOSTS])
+                                            cmd_timeout=config[SSH_COMMAND_TIMEOUT],
+                                            trust_hosts=config[SSH_TRUST_HOSTS], agent_only=config[SSH_AGENT_ONLY])
 
         self.log(logging.INFO, self.rhost.connect_status_string, True)
         if config[OPERATION] == OPERATION_ACCESS:
@@ -259,7 +268,7 @@ class BaseREOSSHWorker(object):
         :return:
         """
         # Display for any mode
-        print "Hosts File: " + config[HOSTS_INPUT_FILE]
+        print "Hosts File: " + config[HOSTS_INVENTORY_FILE]
 
         if not self.str_vars_exist:
             if config[RUN_SUDO_FIRST]:
@@ -271,8 +280,8 @@ class BaseREOSSHWorker(object):
             if config[LOCAL_COMMAND]:
                 print "- Will run command locally"
 
-            if config[COMMAND_SEARCH_STRING]:
-                print "- Search String: '" + config[COMMAND_SEARCH_STRING] + "'"
+            if config[COMMAND_FIND_STRING]:
+                print "- Search String: '" + config[COMMAND_FIND_STRING] + "'"
 
             if config[COMMAND_REPORT_STRING]:
                 print "  - Report String: '" + config[COMMAND_REPORT_STRING] + "'"
@@ -289,17 +298,17 @@ class BaseREOSSHWorker(object):
             if config[SHOW_CONSOLE_OUTPUT]:
                 print "- Show console output"
 
-            if config[HALT_ON_STRING] and config[COMMAND_SEARCH_STRING]:
-                print ("- If " + config[COMMAND_SEARCH_STRING] + " is found, hosts loop will halt")
+            if config[HALT_ON_STRING] and config[COMMAND_FIND_STRING]:
+                print ("- If " + config[COMMAND_FIND_STRING] + " is found, hosts loop will halt")
 
             if config[SHOW_HOST_DURATION] and config[OPERATION] != OPERATION_ACCESS:
                 print ("- Calculate and show host processing duration")
 
         # Display the rest for specific modes
         if config[OPERATION] == OPERATION_BATCH:
-            print "- Commands File: " + config[COMMANDS_FILE]
-        if config[CONDITION_STRING]:
-            print ("Condition found. Filtering processing to: '" + config[CONDITION_STRING]) + "'"
+            print "- Commands File: " + config[BATCH_FILE]
+        if config[FILTER_STRING]:
+            print ("Filter found. Filtering processing to: '" + config[FILTER_STRING]) + "'"
 
         print ("--------------------------------------------------------------------")
 
@@ -309,14 +318,14 @@ class BaseREOSSHWorker(object):
                 if True in [(s in config[COMMAND_STRING]) for s in DESTRUCTIVE_COMMANDS] or config[RUN_SUDO_FIRST]:
                     self.destr_cmds_exist = True
 
-            if self.destr_cmds_exist and not config[RUN_IN_SIMULATION_MODE]:
+            if self.destr_cmds_exist and not config[SIMULATION_MODE]:
                 if not self.util.query_yes_no("\nYour command(s) contains one or more destructive commands: " + str(
                         DESTRUCTIVE_COMMANDS) + ".\nAre you sure you want to continue?", default='no'):
                     sys.exit(2)
                 else:
                     self.log(logging.WARNING, "Destructive commands execution confirmed.", False)
 
-        if not config[RUN_IN_SIMULATION_MODE]:
+        if not config[SIMULATION_MODE]:
 
             if not config[SSH_USER_NAME] and not config[SSH_PASSWORD_CIPHER]:
                 config[SSH_USER_NAME], config[SSH_PASSWORD] = self.util.prompt_user_password(desc="SSH")
@@ -369,10 +378,10 @@ class BaseREOSSHWorker(object):
         Display per-host progress to screen.
         :return: True signal continuation of hosts iteration, False otherwise (halt).
         """  # Running in simulation mode
-        if config[HOST_MARKER]:
-            print (self.__get_process_str() + self.replace_column_vars(config[HOST_MARKER]))
+        if config[HOST_DISPLAY_FORMAT]:
+            print (self.__get_process_str() + self.replace_column_vars(config[HOST_DISPLAY_FORMAT]))
         else:
-            print (self.__get_process_str() + self.current_ip)
+            print (self.__get_process_str() + self.host_or_ip)
 
         # Implemented in different ways by concrete classes
         self.run_simulation()
@@ -384,23 +393,43 @@ class BaseREOSSHWorker(object):
         """
         raise NotImplementedError
 
-    def __eval_condition(self, condition):
+    def display_host_fields(self):
         """
-        Evaluate a single condition string. For example: 'Build=WHC058' or 'Hostname~app'
-        :param condition: condition to be evaluated
-        :return: True if condition is met, False otherwise.
+        Display a list of host file headers with corresponding $HF_#
+        :return:
         """
-        t_cond = re.split("[~=]", condition)
+        for i, col in enumerate(self.hosts.header_list):
+            if col == config[IP_OR_HOST_COLUMN]:
+                col = col + " (Key Column)"
+            print '$HF_%s = %s' % (str(i + 1), col)
+
+    def __eval_condition(self, filter):
+        """
+        Evaluate a single filter string. For example: 'Build=WHC058' or 'Hostname~app'
+        :param filter: filter to be evaluated
+        :return: True if filter is met, False otherwise.
+        """
+        ret_val = False
+        t_cond = re.split("[~=!]", filter)
         if len(t_cond) != 2:
-            raise KeyError('Invalid condition: ' + condition)
+            raise KeyError('Invalid filter: ' + filter)
         field = t_cond[0]
         fvalue = t_cond[1]
         try:
             rvalue = self.current_host[field]
         except KeyError:
-            # shouldn't happen, condition is already checked
-            raise KeyError('Invalid field "' + field + '" in condition ' + condition)
-        return (fvalue in rvalue) if '~' in condition else (fvalue == rvalue)
+            # shouldn't happen, filter is already checked
+            raise KeyError('Invalid field "' + field + '" in filter ' + filter)
+
+        if STRINGS_CONTAINS in filter:
+            ret_val = (fvalue in rvalue)
+        elif STRINGS_NOT_EQUAL in filter:
+            ret_val = (fvalue != rvalue)
+        else:
+            ret_val = (fvalue == rvalue)
+
+        return ret_val
+        # return (fvalue in rvalue) if '~' in filter else (fvalue == rvalue)
 
     def __replace_vars_in_list(self, l, replace_column=True, display_only=False):
         """
@@ -430,7 +459,7 @@ class BaseREOSSHWorker(object):
         """
         # Turn strings into list delimited by |
         self.command_string = [self.util.trim_quotes(config[COMMAND_STRING])]
-        self.search_strings = config[COMMAND_SEARCH_STRING].split(STRINGS_DELIMITER)
+        self.search_strings = config[COMMAND_FIND_STRING].split(STRINGS_DELIMITER)
         self.report_strings = config[COMMAND_REPORT_STRING].split(STRINGS_DELIMITER)
         self.wait_strings = config[COMMAND_WAIT_STRING].split(STRINGS_DELIMITER)
         self.response_strings = config[COMMAND_SEND_STRING].split(STRINGS_DELIMITER)

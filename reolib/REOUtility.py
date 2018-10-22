@@ -1,21 +1,23 @@
+import base64
+import datetime
+import getpass
+import json
+import logging
+import re
 import socket
 import subprocess
-import datetime
-import re
 import traceback
-from Crypto.Cipher import XOR
-import base64
-import json
-import getpass
-import logging
 from logging.handlers import RotatingFileHandler
+
+from Crypto.Cipher import XOR
 
 
 class REOUtility:
     """
     This class is a collection of utility methods static and otherwise.
     """
-    CIPHER_KEY = '#$a%7_(1fsa!@WsfjYU<><!@#$W%_;-!'
+
+    CIPHER_KEY = '#$a%9_(1fsa!@WxfjZU<><!@#$W^_;-!'
 
     def __init__(self, d=False):
         """
@@ -31,6 +33,9 @@ class REOUtility:
 
         self.last_command_output = None
         """Last command output from using run_os_command()"""
+
+        self.last_command_error = None
+        """Last command error from using run_os_command()"""
 
         self.starttime = datetime.datetime.utcnow()
         """Start time recorded since this class was instantiated"""
@@ -74,6 +79,13 @@ class REOUtility:
         :return: Command output
         """
         return self.last_command_output
+
+    def get_last_command_error(self):
+        """
+        Get the last command's error.
+        :return: Command output
+        """
+        return self.last_command_error
 
     def toggle_debug(self, d):
         """
@@ -164,8 +176,10 @@ class REOUtility:
         temp.wait()
         self.print_debug(output, 'Output')
         self.last_command = c
-        self.last_command_output = output
-        return output.strip()
+        self.last_command_output = output.strip()
+        if errput:
+            self.last_command_error = errput.strip()
+        return self.last_command_output
 
     @classmethod
     def is_number(cls, s):
@@ -215,24 +229,32 @@ class REOUtility:
                 print "Please respond with 'yes' or 'no' (or 'y' or 'n')"
 
     @classmethod
-    def encrypt_str(cls, i_str):
+    def encrypt_str(cls, i_str, cipher_key=None):
         """
         Change text to cipher text. Not meant to be secure but at least prevent opportunity
         theft of sensitive text such as passwords.
         :param i_str: String to encrypt
+        :param cipher_key: Cipher to use
         :return: Encrypted string
         """
-        cipher = XOR.new(REOUtility.CIPHER_KEY)
+        if not cipher_key:
+            cipher = XOR.new(REOUtility.CIPHER_KEY)
+        else:
+            cipher = XOR.new(cipher_key)
         return base64.b64encode(cipher.encrypt(i_str))
 
     @classmethod
-    def decrypt_str(cls, e_str):
+    def decrypt_str(cls, e_str, cipher_key=None):
         """
         Decrypt string. Only works if strng was encrypted by this class
         :param e_str: Encrypted string
+        :param cipher_key: Cipher to use
         :return: Decrypted string
         """
-        cipher = XOR.new(REOUtility.CIPHER_KEY)
+        if not cipher_key:
+            cipher = XOR.new(REOUtility.CIPHER_KEY)
+        else:
+            cipher = XOR.new(cipher_key)
         return cipher.decrypt(base64.b64decode(e_str))
 
     @classmethod
@@ -243,6 +265,37 @@ class REOUtility:
         :return: Escaped string
         """
         return json.dumps(e_str)
+
+    @classmethod
+    def ip_lookup(cls, fqdn):
+        """
+        Look-up IP address of a valid FQDN
+        :param fqdn: Host to look-up
+        :return: IP Address
+        """
+        ip = 'None'
+        try:
+            ip = socket.gethostbyname(fqdn)
+        except:
+            pass
+
+        return ip
+
+    @classmethod
+    def fqdn_lookup(cls, ip):
+        """
+        Look-up FQDN given a valid IP
+        :param ip: IP address to look-up
+        :return: FQDN
+        """
+        fqdn = 'None'
+        if REOUtility.is_valid_ipv4_address(ip):
+            try:
+                fqdn = socket.gethostbyaddr(ip)[0]
+            except:
+                pass
+
+        return fqdn
 
     @classmethod
     def trim_quotes(cls, q_str):
@@ -310,6 +363,26 @@ class REOUtility:
         app_log.setLevel(level)
         app_log.addHandler(my_handler)
         return app_log
+
+    @classmethod
+    def get_string_from_file(cls, f):
+        """
+        Read a single line from file.
+        :param f: Input file
+        :return: None
+        """
+        infile = open(f, 'r')
+        lines = infile.readlines()
+
+        for line in lines:
+            tpwd = line.strip()
+            if not tpwd:
+                continue
+            else:
+                break  # found the password
+
+        infile.close()
+        return tpwd
 
     @classmethod
     def get_parser_config(cls, section, parser):
