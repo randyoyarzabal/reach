@@ -382,7 +382,7 @@ class REORemoteHost(object):
                 will_wait_respond = True
 
         # Send the command to the host
-        self.shell.send(command + "echo \n")
+        self.shell.send(command + "\n")
 
         command_completed = False
         error_msg = ''
