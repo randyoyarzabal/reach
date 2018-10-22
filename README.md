@@ -1,21 +1,19 @@
+#### Introduction
+
 Reach is a tool that sends SSH commands to one or more hosts.  It is similar to Ansible except instead of defining YAML 
 files, you can use your existing CSV inventory to send raw/direct series of SSH commands directly to any (or all) of your
 hosts using on-the-fly filters making it perfect for any Network or Linux administrator.  Though it was originally written 
 for network device management like Cisco, F5, and Brocade, it is also designed to work on any remote host accessible via 
 SSH especially those that are Linux/Unix-based.
 
-##### Features:
+#### Features
+
 - Send SSH commands directly to quickly search and adopt changes to your fleet of hosts.
 - Get up-and-running quickly using an existing CSV or Excel file of hosts inventory.
 - On-the-fly filters using columns in the inventory file.
 - Similar to playbooks, create a batch-file of commands to run remotely or locally.
 - Password and input text obfuscation.
 - Interactive commands support via wait (expect) and send (put) strings. 
-
-#### Developers
-
-- Randy Oyarzabal 
-- Francis Lan
 
 #### Tested Use Cases
 
@@ -149,6 +147,11 @@ SSH especially those that are Linux/Unix-based.
       arguments you may want to use, like: -x (simulation) or -d (debug) etc.
     - Be sure to set SSH_COMMAND_TIMEOUT higher than the longest anticipated command duration. But not too high because
       if a command hangs, it will wait for that duration before timing out.
+
+#### Developers
+
+- Randy Oyarzabal 
+- Francis Lan
 
 #### Git Repository
 [https://github.com/randyoyarzabal/reach](https://github.com/randyoyarzabal/reach)

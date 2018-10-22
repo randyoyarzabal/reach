@@ -1,4 +1,4 @@
-Legend: + : added, - : removed, * : fixed, = : replaced
+Legend: + : added, - : removed, * : fixed, = : modified
 
 https://github.com/randyoyarzabal/reach
 
@@ -11,9 +11,9 @@ v1.0.3 [21-Oct-2018] - Latest Stable
 * Improved authentication order: agent, private-key, user/password
 * Improved authentication exception messages
 + Added config comments regarding authentication types
+* SSH_PRIVATE_KEY_FILE now supports reading from inventory with $HF_#
 + Check for file existence of SSH_PRIVATE_KEY_FILE if defined as $HF_#
 + Re-tested support for RSA key with and without a passphrase
-* SSH_PRIVATE_KEY_FILE now supports reading from inventory with $HF_#
 + New config options:
     CIPHER_KEY_FILE : optional external cipher-key string for password obfuscation
     SSH_AGENT_ONLY : force ssh-agent only authentication
@@ -24,10 +24,10 @@ v1.0.3 [21-Oct-2018] - Latest Stable
     HOST_MARKER renamed to HOST_DISPLAY_FORMAT
     SSH_PRIVATE_KEY renamed to SSH_PRIVATE_KEY_FILE
 = Renamed command-line options:
-    -e “Filter” to -f
-    -d “Find String” to -s
-    -g “Debug” to -d
-    -s “Sudo” to -u
+    -e “Filter Condition” to -f
+    -d “Search String” to -s
+    -g “Debug Mode” to -d
+    -s “sudo to root first” to -u
 
 v1.0.2 [9-Oct-2017]
 ------------
