@@ -17,6 +17,7 @@ v1.0.3 [21-Oct-2018] - Latest Stable
 + New config options:
     CIPHER_KEY_FILE : optional external cipher-key string for password obfuscation
     SSH_AGENT_ONLY : force ssh-agent only authentication
+= Enforce SSH_USER_NAME as required if SSH_AGENT_ONLY is True
 = Config options renamed:
     TRUST_HOSTS renamed to SSH_TRUST_HOSTS
     HOSTS_INPUT_FILE renamed to HOSTS_INVENTORY_FILE

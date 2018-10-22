@@ -162,7 +162,7 @@ class REOUtility:
         :return: None
         """
         print ("\n\nAw shucks, Ctrl-C detected. Exiting...\n")
-        exit()
+        quit()
 
     def run_os_command(self, c):
         """

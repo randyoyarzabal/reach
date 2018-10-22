@@ -215,6 +215,10 @@ Tips:
             print "\nCipher text: '" + REOUtility.encrypt_str(input_pass[1], cipher_key) + "'"
             sys.exit(0)
 
+        if config[SSH_AGENT_ONLY]:
+            if not config[SSH_USER_NAME]:
+                raise ValueError("'SSH_USER_NAME' must be set if 'SSH_AGENT_ONLY' is True")
+
         # Forbidden opts when using -b
         if config[OPERATION] == OPERATION_BATCH:
             conflicting_opts = set(BAD_BATCH_OPTS) & set(cli_config.keys())
@@ -318,7 +322,7 @@ Tips:
             temp[COMMAND_SEND_STRING] = len(command[COMMAND_SEND_STRING].split(STRINGS_DELIMITER)) if command[
                                                                                                           COMMAND_SEND_STRING] != '' else 0
             temp[COMMAND_FIND_STRING] = len(command[COMMAND_FIND_STRING].split(STRINGS_DELIMITER)) if command[
-                                                                                                              COMMAND_FIND_STRING] != '' else 0
+                                                                                                          COMMAND_FIND_STRING] != '' else 0
             temp[COMMAND_REPORT_STRING] = len(command[COMMAND_REPORT_STRING].split(STRINGS_DELIMITER)) if command[
                                                                                                               COMMAND_REPORT_STRING] != '' else 0
             if temp[COMMAND_WAIT_STRING] != temp[COMMAND_SEND_STRING]:
@@ -436,7 +440,7 @@ Tips:
         if config[OPERATION] == HOST_FIELDS:
             self.sshworker = CheckAccessWorker(logger=self.logger)
             print ("This is a list of the available column names in " + config[HOSTS_INVENTORY_FILE] + " along with \n"
-                                                                                                   "  the corresponding $HF_# that can be used as command-line options or in the config.\n")
+                                                                                                       "  the corresponding $HF_# that can be used as command-line options or in the config.\n")
             self.sshworker.display_host_fields()
             sys.exit(0)
 

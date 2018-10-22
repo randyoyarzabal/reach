@@ -16,8 +16,9 @@ class REORemoteHost(object):
     SERVER_STATUS_NO_ACCESS = 'Authentication failed. Check user/pass or key/passphrase.'
     SERVER_STATUS_UNKNOWN_HOST = 'Not in known_hosts. Connect manually first, or set SSH_TRUST_HOSTS = True.'
     SERVER_STATUS_HOST_CHANGED = 'Host key changed. Connect manually first, or set SSH_TRUST_HOSTS = True.'
-    SERVER_STATUS_UNABLE_TO_REACH = 'Unable to reach server. Check IP/Hostname or logs.'
+    SERVER_STATUS_UNABLE_TO_REACH = 'Unable to reach server. Check IP/Hostname, logs or Debug (-d)'
     SERVER_STATUS_SSH_ERROR = 'Unknown SSH error occurred. Check the logs.'
+    SERVER_STATUS_SSH_BLOCKED = 'SSH connection to server may be blocked.'
     SERVER_STATUS_SSH_KEY_MISSING = 'Missing private key file.'
     SERVER_STATUS_CONNECTED = 'Connected'
     SERVER_STATUS_ERROR_PROMPT = 'Unable to detect initial prompt'
@@ -219,6 +220,7 @@ class REORemoteHost(object):
                                     allow_agent=allow_agent, look_for_keys=look_for_keys)
             self.log(logging.DEBUG, "Success", False)
             connected = True
+            return connected
         except KeyboardInterrupt:
             self.util.key_interrupt()
         except BadHostKeyException as e:
@@ -236,6 +238,8 @@ class REORemoteHost(object):
             err_str = str(e)
             if 'known_hosts' in err_str:
                 self.connect_status_string = self.SERVER_STATUS_UNKNOWN_HOST
+            elif 'No existing session' in err_str:
+                self.connect_status_string = self.SERVER_STATUS_SSH_BLOCKED
             else:
                 self.connect_status_string = err_str
             self.log(logging.DEBUG, self.connect_status_string, False)
@@ -243,8 +247,6 @@ class REORemoteHost(object):
             self.connect_status_string = self.SERVER_STATUS_UNABLE_TO_REACH
             self.log(logging.DEBUG, self.connect_status_string, False)
             self.log(logging.DEBUG, str(e), False)
-        finally:
-            return connected
 
     def set_password_from_file(self, f):
         """
