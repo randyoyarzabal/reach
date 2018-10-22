@@ -41,7 +41,7 @@ SSH especially those that are Linux/Unix-based.
 - Multi-host File/State Search
 - Monitoring
 
-### Installation
+## Installation
 
    See the [INSTALL.md](docs/INSTALL.md) file in the `docs` folder.
    
