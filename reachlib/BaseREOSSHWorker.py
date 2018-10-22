@@ -326,15 +326,16 @@ class BaseREOSSHWorker(object):
                     self.log(logging.WARNING, "Destructive commands execution confirmed.", False)
 
         if not config[SIMULATION_MODE]:
+            if not config[SSH_AGENT_ONLY]:
+                # Prompt for user/password if not defined.
+                if not config[SSH_USER_NAME] and not config[SSH_PASSWORD_CIPHER]:
+                    config[SSH_USER_NAME], config[SSH_PASSWORD] = self.util.prompt_user_password(desc="SSH")
 
-            if not config[SSH_USER_NAME] and not config[SSH_PASSWORD_CIPHER]:
-                config[SSH_USER_NAME], config[SSH_PASSWORD] = self.util.prompt_user_password(desc="SSH")
+                elif not config[SSH_USER_NAME]:
+                    config[SSH_USER_NAME], none = self.util.prompt_user_password(password_prompt=False, desc="SSH")
 
-            elif not config[SSH_USER_NAME]:
-                config[SSH_USER_NAME], none = self.util.prompt_user_password(password_prompt=False, desc="SSH")
-
-            elif not config[SSH_PASSWORD_CIPHER]:
-                none, config[SSH_PASSWORD] = self.util.prompt_user_password(user_prompt=False, desc="SSH")
+                elif not config[SSH_PASSWORD_CIPHER]:
+                    none, config[SSH_PASSWORD] = self.util.prompt_user_password(user_prompt=False, desc="SSH")
 
     def simulate_command(self):
         """
