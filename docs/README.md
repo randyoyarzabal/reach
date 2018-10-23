@@ -43,13 +43,13 @@ SSH especially those that are Linux/Unix-based.
 
 ### Installation
 
-   See the [INSTALL.md](docs/INSTALL.md) file in the `docs` folder.
+   See the [INSTALL.md](INSTALL.md) file in the `docs` folder.
    
 ## Sample Prerequisite Files
 
-   - [Inventory/hosts](docs/templates/hosts_file_sample.csv) file
-   - [Configuration](docs/templates/config_template.ini) file
-   - [Batch commands](docs/templates/sample_commands.csv) file
+   - [Inventory/hosts](templates/hosts_file_sample.csv) file
+   - [Configuration](templates/config_template.ini) file
+   - [Batch commands](templates/sample_commands.csv) file
 
 ## Synopsis
 
