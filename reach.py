@@ -67,24 +67,11 @@ Operation Modes:
     -b <commands file> : Run Batch Commands (comma separated file, see template for format/options)
     -c <command> : Run Command
 
-Optional for all modes:
-    --config=<config_file> Override the default config.ini (located in the configs directory)
-    -i <inventory_file> : Inventory (hosts) file (comma separated, define header key with -k)
-      -k <key_column> : [Required with -i] Column header of keys
-    -f <filter> : Filter hosts to process. Operators are supported: = equal, ! not equal, | or, ~ contains, & and.
-        Note: Reach does not support mixed (& and |) in this release yet.
-        Example conditions: 'Build=WHC0122' , 'Build!WHC0122', 'Build=WHC0122&Host~app, 'Build=WHC0122|Host~app|Host~dom'
-    -x : SIMULATION Mode (no connection/commands invoked)
-    -d : DEBUG Mode
-
-Optional for Command (-c) mode. Note that for Batch (-b) Mode, these are internally defined in the commands file.
+Optional for Command (-c) Mode: 
+    **Note that for Batch (-b) Mode, these are internally defined in the commands file.**
     -o : Show command console output (ignored in batch (-b option) mode)
     -u : Run command as root (run 'sudo su -' first), supports password-less sudo only
     -h : Halt looping through hosts when first done string (-s) is found
-
-Special modes:
-    --cipher_text : generate cipher text from a password for use in SSH_PASSWORD_CIPHER or $CT=<cipher_text> (-p)
-    --host_fields : return a list of column headers (with $HF_#) from the host file
 
     The following can use hosts file column variables ($HF_#) delimited by '|':
         For example: '$HF_#' where # is the column number in the hosts file:
@@ -104,6 +91,20 @@ Special modes:
             $SPACE_KEY : ' '
             $CT=<password in cipher text> : Used for sending passwords to the terminal like changing passwords
               or sending Cisco ASA passwords in "enable" mode.
+
+Optional for all modes:
+    --config=<config_file> Override the default config.ini (located in the configs directory)
+    -i <inventory_file> : Inventory (hosts) file (comma separated, define header key with -k)
+      -k <key_column> : [Required with -i] Column header of keys
+    -f <filter> : Filter hosts to process. Operators are supported: = equal, ! not equal, | or, ~ contains, & and.
+        Note: Reach does not support mixed (& and |) in this release yet.
+        Example conditions: 'Build=WHC0122' , 'Build!WHC0122', 'Build=WHC0122&Host~app, 'Build=WHC0122|Host~app|Host~dom'
+    -x : SIMULATION Mode (no connection/commands invoked)
+    -d : DEBUG Mode
+
+Special modes:
+    --cipher_text : generate cipher text from a password for use in SSH_PASSWORD_CIPHER or $CT=<cipher_text> (-p)
+    --host_fields : return a list of column headers (with $HF_#) from the host file
 
 Examples:
     - Run 'yum -y install gdb' as root, look for the strings: 'Nothing' or 'Complete', then display
@@ -192,7 +193,10 @@ Tips:
 
         # Special operations
         if config[OPERATION] == SHOW_AUTHOR:
-            self.author(show_desc=False, show_help=True)
+            self.author(show_desc=False, show_help=False)
+            print 'Changes History:\n'
+            with open(self.dir_path + '/CHANGES.txt', 'r') as fin:
+                print fin.read()
             sys.exit(2)
 
         if config[OPERATION] == SHOW_USAGE:

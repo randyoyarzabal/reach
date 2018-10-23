@@ -14,8 +14,8 @@ SSH especially those that are Linux/Unix-based.
 - [Synopsis](#synopsis)
 - [Usage / Help](#usage-and-help)
 - [Operation Modes](#operation-modes)
-- [Optional for all Modes](#optional-for-all-modes)
 - [Optional for Command (-c) Mode](#optional-for-command-mode)
+- [Optional for all Modes](#optional-for-all-modes)
 - [Special modes](#special-modes)
 - [Examples](#examples)
 - [Helpful Tips](#helpful-tips)
@@ -75,26 +75,15 @@ SSH especially those that are Linux/Unix-based.
     -b <commands file> : Run Batch Commands (comma separated file, see template for format/options)
     -c <command> : Run Command 
 
-## Optional for all Modes 
-
-    --config=<config_file> Override the default config.ini (located in the configs directory)
-    -i <inventory_file> : Inventory (hosts) file (comma separated, define header key with -k)
-      -k <key_column> : [Required with -i] Column header of keys
-    -f <filter> : Filter hosts to process. Operators are supported: = equal, ! not equal, | or, ~ contains, & and.
-        Note: Reach does not support mixed (& and |) in this release yet.
-        Example conditions: 'Build=WHC0122' , 'Build!WHC0122', 'Build=WHC0122&Host~app, 'Build=WHC0122|Host~app|Host~dom'
-    -x : SIMULATION Mode (no connection/commands invoked)
-    -d : DEBUG Mode
-
 ## Optional for Command Mode
-#### *Note that for Batch Mode, these are internally defined in the commands file.*
+##### *Note that for Batch Mode, these are internally defined in the commands file.*
 
     -o : Show command console output (ignored in batch (-b option) mode)
     -u : Run command as root (run 'sudo su -' first), supports password-less sudo only
     -h : Halt looping through hosts when first done string (-s) is found
 
 #### The following can use hosts file column variables ($HF) delimited by '|':
-#### *For example: '$HF_#' where # is the column number in the hosts file*
+##### *For example: '$HF_#' where # is the column number in the hosts file*
 
      --username=<ssh_user> : Force user string instead of what is configured.
      --password=<ssh_cipher-text password> : Force cipher-text password instead of what is configured.
@@ -113,7 +102,19 @@ SSH especially those that are Linux/Unix-based.
             $CT=<password in cipher text> : Used for sending passwords to the terminal like changing passwords 
               or sending Cisco ASA passwords in "enable" mode.  
 
+## Optional for all Modes 
+
+    --config=<config_file> Override the default config.ini (located in the configs directory)
+    -i <inventory_file> : Inventory (hosts) file (comma separated, define header key with -k)
+      -k <key_column> : [Required with -i] Column header of keys
+    -f <filter> : Filter hosts to process. Operators are supported: = equal, ! not equal, | or, ~ contains, & and.
+        Note: Reach does not support mixed (& and |) in this release yet.
+        Example conditions: 'Build=WHC0122' , 'Build!WHC0122', 'Build=WHC0122&Host~app, 'Build=WHC0122|Host~app|Host~dom'
+    -x : SIMULATION Mode (no connection/commands invoked)
+    -d : DEBUG Mode
+    
 ## Special modes
+
     --cipher_text : generate cipher text from a password for use in SSH_PASSWORD_CIPHER or $CT=<cipher_text> (-p)
     --host_fields : return a list of column headers (with $HF_#) from the host file
 
