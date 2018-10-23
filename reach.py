@@ -194,7 +194,7 @@ Tips:
         # Special operations
         if config[OPERATION] == SHOW_AUTHOR:
             self.author(show_desc=False, show_help=False)
-            print 'Changes History:\n'
+            print 'Change History:\n'
             with open(self.dir_path + '/CHANGES.txt', 'r') as fin:
                 print fin.read()
             sys.exit(2)

@@ -1,4 +1,4 @@
-Repository: https://github.com/randyoyarzabal/reach
+Git Repo: https://github.com/randyoyarzabal/reach
 
 Legend: + : added, - : removed, * : fixed, = : modified
 
