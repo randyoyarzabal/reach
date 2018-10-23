@@ -1,6 +1,6 @@
-Legend: + : added, - : removed, * : fixed, = : modified
+Repository: https://github.com/randyoyarzabal/reach
 
-https://github.com/randyoyarzabal/reach
+Legend: + : added, - : removed, * : fixed, = : modified
 
 v1.0.3 [21-Oct-2018] - Latest Stable
 ------------
@@ -33,4 +33,3 @@ v1.0.3 [21-Oct-2018] - Latest Stable
 v1.0.2 [9-Oct-2017]
 ------------
 + Initial load into GitHub
-
