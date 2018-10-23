@@ -1,7 +1,7 @@
 Steps for installing/using Reach:
 --------------------------------
 
-Get the latest stable build of Reach by manually downloading the Reach tree 
+Get the latest stable build of Reach by manually downloading the Reach release 
 [zip file](https://github.com/randyoyarzabal/reach/archive/v1.0.3.zip) OR with git:
 
 To get the master (stable) branch:
