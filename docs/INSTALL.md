@@ -1,7 +1,7 @@
 Steps for installing/using Reach:
 --------------------------------
 
-Get the latest stable build of Reach by manually downloading the Reach tree 
+Get the latest stable build of Reach by manually downloading the Reach release 
 [zip file](https://github.com/randyoyarzabal/reach/archive/v1.0.3.zip) OR with git:
 
 To get the master (stable) branch:
@@ -42,7 +42,7 @@ In Linux/Mac you can do this automatically by typing the following command:
     >`./reach.py --cipher_text <password>` against all passwords you will use.  Take the output and put 
     in `SSH_PASSWORD_CIPHER` of the `config.ini` file or define in the CSV inventory as a column then define
     `SSH_PASSWORD_CIPHER : $HF_#` where # is the column number of the password to use. You may also use the output
-    of this for any input you'd like to obfuscate by prefixing it with `$CT=******` (where ****** is the password 
+    of this for any input you'd like to obfuscate by prefixing it with `$CT=******` (where `******` is the password 
     cipher-text) before using it (i.e. with the -p option.)
 
 6. Edit the rest of `config.ini` file variables to suit your needs. Note the options: `SSH_USER_NAME`, 
@@ -74,7 +74,6 @@ Note that you may create copies of the config.ini file and pass to the tool like
 Optionally, you can also pass the hosts file:
 
    >`./reach.py -i docs/templates/hosts_file_sample.csv -k 'IP_Address' ...`
-
 
 Remember -x for simulation!  Useful for checking to make sure the commands and filtering (-f)
   is correct before actually executing.

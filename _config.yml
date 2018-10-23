@@ -1,3 +1,4 @@
-theme: jekyll-theme-dinky
+theme: jekyll-theme-cayman
 show_downloads: true
 toc: true
+overflow-x: scroll
