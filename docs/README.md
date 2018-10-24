@@ -78,7 +78,7 @@ Reach is an automation tool that sends SSH commands to one or more hosts.  It is
     -u : Run command as root (run 'sudo su -' first), supports password-less sudo only
     -h : Halt looping through hosts when first done string (-s) is found
 
-#### The following can use hosts file column variables ($HF) i.e. '$HF_#' where # is the column number in the hosts file
+#### The following may use hosts file column variables ($HF) i.e. '$HF_#' where # is the column number in the hosts file:
 
      -s <search_string> : Search string in output (For example: 'Complete' or 'Nothing|Complete')
         Can also use '$NF' to test for string is not found.
@@ -105,7 +105,7 @@ Reach is an automation tool that sends SSH commands to one or more hosts.  It is
     -x : SIMULATION Mode (no connection/commands invoked)
     -d : DEBUG Mode
 
-#### The following can also use hosts file column variables ($HF)
+#### The following may also use hosts file column variables ($HF):
 
     --username=<ssh_user> : Force user string instead of what is configured.
     --password=<ssh_cipher-text password> : Force cipher-text password instead of what is configured.
