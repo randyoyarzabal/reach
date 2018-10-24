@@ -72,18 +72,14 @@ Reach is an automation tool that sends SSH commands to one or more hosts.  It is
     -c <command> : Run Command 
 
 ## Optional for Command Mode
-##### *Note that for Batch Mode, these are internally defined in the commands file.*
+#### *Note that for Batch Mode, these are internally defined in the commands file.*
 
     -o : Show command console output (ignored in batch (-b option) mode)
     -u : Run command as root (run 'sudo su -' first), supports password-less sudo only
     -h : Halt looping through hosts when first done string (-s) is found
 
-#### The following can use hosts file column variables ($HF) delimited by '|':
-##### *For example: '$HF_#' where # is the column number in the hosts file*
+#### The following can use hosts file column variables ($HF) i.e. '$HF_#' where # is the column number in the hosts file
 
-     --username=<ssh_user> : Force user string instead of what is configured.
-     --password=<ssh_cipher-text password> : Force cipher-text password instead of what is configured.
-     --private_key=<ssh_rsa_key> : Force private RSA key file instead of what is configured.
      -s <search_string> : Search string in output (For example: 'Complete' or 'Nothing|Complete')
         Can also use '$NF' to test for string is not found.
         -r <report_string> : [Optional with same length as -s] Matching string to print to screen when -s match
@@ -108,6 +104,12 @@ Reach is an automation tool that sends SSH commands to one or more hosts.  It is
         Example conditions: 'Build=WHC0122' , 'Build!WHC0122', 'Build=WHC0122&Host~app, 'Build=WHC0122|Host~app|Host~dom'
     -x : SIMULATION Mode (no connection/commands invoked)
     -d : DEBUG Mode
+
+#### The following can also use hosts file column variables ($HF)
+
+    --username=<ssh_user> : Force user string instead of what is configured.
+    --password=<ssh_cipher-text password> : Force cipher-text password instead of what is configured.
+    --private_key=<ssh_rsa_key> : Force private RSA key file instead of what is configured.
     
 ## Special modes
 

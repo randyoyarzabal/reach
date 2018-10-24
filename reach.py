@@ -73,24 +73,20 @@ Optional for Command (-c) Mode:
     -u : Run command as root (run 'sudo su -' first), supports password-less sudo only
     -h : Halt looping through hosts when first done string (-s) is found
 
-    The following can use hosts file column variables ($HF_#) delimited by '|':
-        For example: '$HF_#' where # is the column number in the hosts file:
-     --username=<ssh_user> : Force user string instead of what is configured.
-     --password=<ssh_cipher-text password> : Force cipher-text password instead of what is configured.
-     --private_key=<ssh_rsa_key> : Force private RSA key file instead of what is configured.
-     -s <search_string> : Search string in output (For example: 'Complete' or 'Nothing|Complete')
-        Can also use '$NF' to test for string is not found.
-        -r <report_string> : [Optional with same length as -s] Matching string to print to screen when -s match
-           For example: 'Installed|Not Installed'
-     -w <wait_string> : Wait string
-        -p <response_string> : [Required with same length as -w] Send a string when -w string is found
-          The following list of special markers can be used in -p:
-            $ENTER_KEY : '\\n'
-            $RETURN_KEY : '\\r'
-            $TAB_KEY : '\\t'
-            $SPACE_KEY : ' '
-            $CT=<password in cipher text> : Used for sending passwords to the terminal like changing passwords
-              or sending Cisco ASA passwords in "enable" mode.
+    The following may use hosts file column variables ($HF_#) i.e. '$HF_#' where # is the column number in the hosts file:
+    -s <search_string> : Search string in output (For example: 'Complete' or 'Nothing|Complete')
+       Can also use '$NF' to test for string is not found.
+       -r <report_string> : [Optional with same length as -s] Matching string to print to screen when -s match
+          For example: 'Installed|Not Installed'
+    -w <wait_string> : Wait string
+       -p <response_string> : [Required with same length as -w] Send a string when -w string is found
+         The following list of special markers can be used in -p:
+           $ENTER_KEY : '\\n'
+           $RETURN_KEY : '\\r'
+           $TAB_KEY : '\\t'
+           $SPACE_KEY : ' '
+           $CT=<password in cipher text> : Used for sending passwords to the terminal like changing passwords
+             or sending Cisco ASA passwords in "enable" mode.
 
 Optional for all modes:
     --config=<config_file> Override the default config.ini (located in the configs directory)
@@ -101,6 +97,11 @@ Optional for all modes:
         Example conditions: 'Build=WHC0122' , 'Build!WHC0122', 'Build=WHC0122&Host~app, 'Build=WHC0122|Host~app|Host~dom'
     -x : SIMULATION Mode (no connection/commands invoked)
     -d : DEBUG Mode
+
+    The following may also use hosts file column variables ($HF_#):
+    --username=<ssh_user> : Force user string instead of what is configured.
+    --password=<ssh_cipher-text password> : Force cipher-text password instead of what is configured.
+    --private_key=<ssh_rsa_key> : Force private RSA key file instead of what is configured.
 
 Special modes:
     --cipher_text : generate cipher text from a password for use in SSH_PASSWORD_CIPHER or $CT=<cipher_text> (-p)
