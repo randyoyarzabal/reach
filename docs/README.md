@@ -11,6 +11,7 @@ Reach is an automation tool that sends SSH commands to one or more hosts.  It is
 - [Usage / Help](#usage-and-help)
 - [Operation Modes](#operation-modes)
 - [Optional for Command (-c) Mode](#optional-for-command-mode)
+- [Special Variables or Markers](#special-variables-or-markers)
 - [Optional for all Modes](#optional-for-all-modes)
 - [Special modes](#special-modes)
 - [Examples](#examples)
