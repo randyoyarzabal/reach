@@ -115,7 +115,7 @@ Reach is an automation tool that sends SSH commands to one or more hosts.  It is
 	-s, -r, -w, -p, --username=, --password=, --private_key=
 	
 ##### Configuration options:
-	SSH_USER_NAME, SSH_PASSWORD_CIPHER, SSH_PRIVATE_KEY_FILE
+	SSH_USER_NAME, SSH_PASSWORD_CIPHER, SSH_PRIVATE_KEY_FILE, HOST_DISPLAY_FORMAT
 	
 #### Special keystrokes for use in -p:
 

@@ -105,12 +105,12 @@ Special Variables or Markers:
             -s, -r, -w, -p, --username=, --password=, --private_key=
 
         Configuration options:
-            SSH_USER_NAME, SSH_PASSWORD_CIPHER, SSH_PRIVATE_KEY_FILE
+            SSH_USER_NAME, SSH_PASSWORD_CIPHER, SSH_PRIVATE_KEY_FILE, HOST_DISPLAY_FORMAT
 
 Special keystrokes for use in -p:
-    ENTER_KEY : '\n'
-    RETURN_KEY : '\r'
-    TAB_KEY : '\t'
+    ENTER_KEY : '\\n'
+    RETURN_KEY : '\\r'
+    TAB_KEY : '\\t'
     SPACE_KEY : ' '
     
 Special modes:
