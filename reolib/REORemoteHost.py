@@ -37,7 +37,7 @@ class REORemoteHost(object):
     SPACE_KEY = '$SPACE_KEY'
     CIPHER_TEXT_MARKER = '$CT='
 
-    KEY_STROKE = {ENTER_KEY: '\n', RETURN_KEY: '\n', TAB_KEY: '\t', SPACE_KEY: ' '}
+    KEY_STROKE = {ENTER_KEY: '\n', RETURN_KEY: '\r', TAB_KEY: '\t', SPACE_KEY: ' '}
     """Dictionary of key strokes and their corresponding real character(s)"""
 
     KEY_STROKE_DISPLAY = {ENTER_KEY: '<ENTER KEY>', RETURN_KEY: '<RETURN KEY>', TAB_KEY: '<TAB KEY>',

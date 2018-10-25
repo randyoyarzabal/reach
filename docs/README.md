@@ -11,6 +11,7 @@ Reach is an automation tool that sends SSH commands to one or more hosts.  It is
 - [Usage / Help](#usage-and-help)
 - [Operation Modes](#operation-modes)
 - [Optional for Command (-c) Mode](#optional-for-command-mode)
+- [Special Variables or Markers](#special-variables-or-markers)
 - [Optional for all Modes](#optional-for-all-modes)
 - [Special modes](#special-modes)
 - [Examples](#examples)
@@ -77,26 +78,19 @@ Reach is an automation tool that sends SSH commands to one or more hosts.  It is
     -o : Show command console output (ignored in batch (-b option) mode)
     -u : Run command as root (run 'sudo su -' first), supports password-less sudo only
     -h : Halt looping through hosts when first done string (-s) is found
-
-#### The following may use hosts file column variables ($HF) i.e. '$HF_#' where # is the column number in the hosts file:
-
-     -s <search_string> : Search string in output (For example: 'Complete' or 'Nothing|Complete')
-        Can also use '$NF' to test for string is not found.
-        -r <report_string> : [Optional with same length as -s] Matching string to print to screen when -s match
-           For example: 'Installed|Not Installed'
-     -w <wait_string> : Wait string
-        -p <response_string> : [Required with same length as -w] Send a string when -w string is found
-          The following list of special markers can be used in -p:
-            $ENTER_KEY : '\n'
-            $RETURN_KEY : '\r'
-            $TAB_KEY : '\t'
-            $SPACE_KEY : ' '
-            $CT=<password in cipher text> : Used for sending passwords to the terminal like changing passwords 
-              or sending Cisco ASA passwords in "enable" mode.  
+    -s <search_string> : Search string in output (For example: 'Complete' or 'Nothing|Complete')
+       Can also use '$NF' to test for string is not found.
+       -r <report_string> : [Optional with same length as -s] Matching string to print to screen when -s match
+          For example: 'Installed|Not Installed'
+    -w <wait_string> : Wait string
+       -p <response_string> : [Required with same length as -w] Send a string when -w string is found
 
 ## Optional for all Modes 
 
     --config=<config_file> Override the default config.ini (located in the configs directory)
+    --username=<ssh_user> : Force user string instead of what is configured.
+    --password=<ssh_cipher-text password> : Force cipher-text password instead of what is configured.
+    --private_key=<ssh_rsa_key> : Force private RSA key file instead of what is configured.
     -i <inventory_file> : Inventory (hosts) file (comma separated, define header key with -k)
       -k <key_column> : [Required with -i] Column header of keys
     -f <filter> : Filter hosts to process. Operators are supported: = equal, ! not equal, | or, ~ contains, & and.
@@ -105,12 +99,31 @@ Reach is an automation tool that sends SSH commands to one or more hosts.  It is
     -x : SIMULATION Mode (no connection/commands invoked)
     -d : DEBUG Mode
 
-#### The following may also use hosts file column variables ($HF):
+## Special Variables or Markers
 
-    --username=<ssh_user> : Force user string instead of what is configured.
-    --password=<ssh_cipher-text password> : Force cipher-text password instead of what is configured.
-    --private_key=<ssh_rsa_key> : Force private RSA key file instead of what is configured.
-    
+#### Variables/markers:
+
+    $HF_# : Reference to the host file where # is the column number.
+    $NF : Signal that the search string is not found in -s e.g. '-s search_string|$NF'
+    $CT=<cipher text> : Used for sending passwords to the terminal like changing passwords or sending 
+        Cisco ASA passwords in "enable" mode. Used in -p, or as host column data; can then be referenced 
+        as $HF_# as described below ($HF_# support). 
+        *See related option: --cipher_text option.*
+   
+#### The following support $HF_#:
+##### Command-line options:
+	-s, -r, -w, -p, --username=, --password=, --private_key=
+	
+##### Configuration options:
+	SSH_USER_NAME, SSH_PASSWORD_CIPHER, SSH_PRIVATE_KEY_FILE, HOST_DISPLAY_FORMAT
+	
+#### Special keystrokes for use in -p:
+
+    ENTER_KEY : '\n'
+    RETURN_KEY : '\r'
+    TAB_KEY : '\t'
+    SPACE_KEY : ' '
+
 ## Special modes
 
     --cipher_text : generate cipher text from a password for use in SSH_PASSWORD_CIPHER or $CT=<cipher_text> (-p)
