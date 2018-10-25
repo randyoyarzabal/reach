@@ -2,8 +2,9 @@ Git Repo: https://github.com/randyoyarzabal/reach
 
 Legend: + : added, - : removed, * : fixed, = : modified
 
-v1.0.3 [21-Oct-2018] - Latest Stable
+v1.0.3 [24-Oct-2018] - Latest Stable
 ------------
+= Improved help-text
 - Removed --cipher_text= from being passed. Now prompts instead.
 * Optimized library imports.
 + Added “not equal“ filter operator as ‘!’
