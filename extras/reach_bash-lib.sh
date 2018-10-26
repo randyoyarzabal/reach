@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 # This is an OPTIONAL BASH library for use with Reach. Feel free to add aliases, functions etc.
+
 # To use this, just source in your start_up script (i.e. profile or bashrc)
+# Something like this:
+
+# REACH_DIR='/full_path_to_reach
+# . /path_to_this_file
 
 # A collection of utility environment vars, aliases and functions for Reach etc.
 #
