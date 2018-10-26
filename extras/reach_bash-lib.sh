@@ -13,8 +13,7 @@
 
 shopt -s expand_aliases
 
-# Define the reach location here
-REACH_DIR='/Users/m173404/dev/repos/github/reach'
+# Define the reach location here (be sure to define REACH_DIR outside this script)
 REACH_BASH_LIB="$REACH_DIR/extras/reach_bash-lib.sh"
 REACH_TOOL="$REACH_DIR/reach.py"
 
