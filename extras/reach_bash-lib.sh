@@ -63,14 +63,22 @@ function reach.edit_library() {
       echo "Usage: $FUNCNAME"
       return;
    fi
-   date=$(stat -c %y "$REACH_BASH_LIB");
-   vim $REACH_BASH_LIB;
-   date2=$(stat -c %y "$REACH_BASH_LIB");
+
+   file="$REACH_BASH_LIB";
+   if [ "$PLATFORM" == "Mac"  ]; then
+       date=$(stat -f "%Sm" -t "%Y%m%dT%H%M%S" "$file");
+       vi $file;
+       date2=$(stat -f "%Sm" -t "%Y%m%dT%H%M%S" "$file");
+   else
+       date=$(stat -c %y "$file");
+       vim $file;
+       date2=$(stat -c %y "$file");
+   fi
 
    # check if the file was actually modified before reloading
    if [[ $date2 != $date ]]; then
      echo "REACH BASH library was modified."
-     web.reload_library
+     reach.reload_library
    fi
 }
 
