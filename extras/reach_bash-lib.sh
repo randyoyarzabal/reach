@@ -42,6 +42,7 @@ esac
 function reach.search {
    if [ -z "$1" ] || [ -z "$2" ] || [ "$1" == "-?" ]; then
       echo "Find a string in the result of a command against the host fleet."
+      echo "Note: You may pass Reach parameters to the end i.e. -f (filter) or -x (simulate) etc."
       echo "Usage: $FUNCNAME <command> <search string>";
       return;
    fi
@@ -51,6 +52,20 @@ function reach.search {
 
    # This script can also be customized to halt the search (hosts iteration) with -h when string is found on a host.
    reach -c "$1" -s "$2"'|$NF' -r 'Found in Host: $HF_1 ($HF_3)|Not Found in Host: $HF_1 ($HF_3)' "${@:3}" | grep --color=never Found;
+
+   __timer end
+}
+
+function reach.passwd {
+   if [ -z "$1" ] || [ -z "$2" ] || [ "$1" == "-?" ]; then
+      echo "Change user password of the user defined in Reach."
+      echo "Note: You may pass Reach parameters to the end i.e. -f (filter) or -x (simulate) etc."
+      echo "Usage: $FUNCNAME <cipher-text current password> <cipher-text new password>";
+      return;
+   fi
+   __timer start
+
+   reach -c 'passwd' -w 'current|New|Retype' -p '$CT='"$1"'|$CT='"$2"'|$CT='"$2" -s 'successfully' -r 'Changed password' "${@:3}"
 
    __timer end
 }
