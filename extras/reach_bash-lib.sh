@@ -25,20 +25,31 @@ alias reach='$REACH_TOOL'
 # Example aliases:
 # alias reach-linux='$REACH_TOOL -f TYPE=Linux'
 
+# Check platform type
+# Probably best to fully define 'uname' path for cross-compatibility
+uname_out="$(uname -s)"
+case "${uname_out}" in
+    Linux*)     PLATFORM='Linux';;
+    Darwin*)    PLATFORM='Mac';;
+    CYGWIN*)    PLATFORM='Cygwin';;
+    MINGW*)     PLATFORM='MinGw';;
+    *)          PLATFORM="UNKNOWN:${uname_out}"
+esac
+
 # GENERAL UTILITY FUNCTIONS
 ############################
 
 function reach.search {
    if [ -z "$1" ] || [ -z "$2" ] || [ "$1" == "-?" ]; then
-      echo "Find a string in the result of a command against the non-SIP fleet."
-      echo "Optionally pass -all to search entire fleet (active only)."
-      echo "Usage: $FUNCNAME <command> <search string> [-all]";
+      echo "Find a string in the result of a command against the host fleet."
+      echo "Usage: $FUNCNAME <command> <search string>";
       return;
    fi
    __timer start
 
    echo "Executing \"$1\" against selected hosts.  Searching for: \"$2\"";
 
+   # This script can also be customized to halt the search (hosts iteration) with -h when string is found on a host.
    reach -c "$1" -s "$2"'|$NF' -r 'Found in Host: $HF_1 ($HF_3)|Not Found in Host: $HF_1 ($HF_3)' "${@:3}" | grep --color=never Found;
 
    __timer end
@@ -75,8 +86,10 @@ function reach.reload_library() {
 
 function __timer () {
    # Usage: __timer <start | end>
-   if [ "$1" = "start" ]; then SECONDS=0; return; fi
-   if [ "$1" = "end" ]; then echo "Task took: "`date +%T -d "1/1 + $SECONDS sec"`; fi
+   if [ "$PLATFORM" != "Mac" ]; then  # Need to figure out the Mac equivalent of below
+      if [ "$1" = "start" ]; then SECONDS=0; return; fi
+      if [ "$1" = "end" ]; then echo "Task took: "`date +%T -d "1/1 + $SECONDS sec"`; fi
+   fi
 }
 
 function __lower() {
