@@ -40,8 +40,8 @@ class Reach(REOScript):
         """Directory only of running script"""
 
         self.SCRIPT_NAME = os.path.basename(self.full_path)
-        self.SCRIPT_VERSION = 'v1.0.3'
-        self.SCRIPT_DATE = '24-Oct-2018'
+        self.SCRIPT_VERSION = 'Pre-Release v1.0.4 (GitHub)'
+        self.SCRIPT_DATE = '29-Oct-2018'
         self.SCRIPT_DESCRIPTION = "Lightweight tool for executing remote commands on multiple hosts via SSH."
         self.SCRIPT_SYNTAX_OR_INFO = "Git Repository: https://github.com/randyoyarzabal/reach"
         self.SCRIPT_HELP = "Help/usage: reach.py -?"
