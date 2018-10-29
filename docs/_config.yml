@@ -1,4 +1,7 @@
+title: reach - Automation tool for executing remote commands on multiple devices/hosts via SSH.
 theme: jekyll-theme-slate
 show_downloads: true
 toc: true
 overflow-x: scroll
+categories: [automation, python, paramiko, pycrypto, rbpsiu]
+tags: [automation, f5, cisco, vyatta, python, ssh, ansible]
