@@ -1,13 +1,16 @@
-[![GitHub release](https://img.shields.io/github/release/randyoyarzabal/reach.svg?style=social)](https://github.com/randyoyarzabal/reach/releases/latest) [![GitHub commits (since latest release)](https://img.shields.io/github/commits-since/randyoyarzabal/reach/latest.svg?style=social)](https://github.com/randyoyarzabal/reach/commits/master)
+[![GitHub release](https://img.shields.io/badge/Download-Latest%20Stable-lightgrey.svg?style=social)](https://github.com/randyoyarzabal/reach/releases/latest) [![GitHub commits (since latest release)](https://img.shields.io/github/commits-since/randyoyarzabal/reach/latest.svg?style=social)](https://github.com/randyoyarzabal/reach/commits/master)
 
 ### Introduction
 
 Reach is an automation tool that sends SSH commands to one or more hosts.  It is similar to Ansible but Reach is meant to be a quick alternative for operating on your fleet of hosts with ad-hoc commands that operate remotely or locally in conjunction with ad-hoc host filters&mdash;without the need for any modules or pre-defining custom YAML files.  Quickly get up-and-running by using existing CSV hosts inventory to send raw/direct series of SSH commands directly to any (or all) of your hosts using on-the-fly filters making it perfect complement to any Server or Network Administrator’s tool-box.  Though it was originally written for network device management like Cisco, F5, and Brocade, etc. it is also designed to work on any remote host accessible via SSH especially those that are Linux/Unix-based.
 
+### Installation
+
+   See the [INSTALL.md](INSTALL.md) file in the `docs` folder.
+
 ### Contents
 - [Features](#features)
 - [Tested Use Cases](#tested-use-cases)
-- [Installation](#installation)
 - [Sample Prerequisite Files](#sample-prerequisite-files)
 - [Synopsis](#synopsis)
 - [Usage / Help](#usage-and-help)
@@ -15,7 +18,7 @@ Reach is an automation tool that sends SSH commands to one or more hosts.  It is
 - [Optional for Command (-c) Mode](#optional-for-command-mode)
 - [Special Variables or Markers](#special-variables-or-markers)
 - [Optional for all Modes](#optional-for-all-modes)
-- [Special modes](#special-modes)
+- [Special Modes](#special-modes)
 - [Examples](#examples)
 - [Helpful Tips](#helpful-tips)
 - [Developers](#developers)
@@ -39,10 +42,6 @@ Reach is an automation tool that sends SSH commands to one or more hosts.  It is
 - User and Password management
 - Multi-host File/State Search
 - Monitoring
-
-### Installation
-
-   See the [INSTALL.md](INSTALL.md) file in the `docs` folder.
    
 ### Sample Prerequisite Files
 
@@ -126,7 +125,7 @@ Reach is an automation tool that sends SSH commands to one or more hosts.  It is
     TAB_KEY : '\t'
     SPACE_KEY : ' '
 
-### Special modes
+### Special Modes
 
     --cipher_text : generate cipher text from a password for use in SSH_PASSWORD_CIPHER or $CT=<cipher_text> (-p)
     --host_fields : return a list of column headers (with $HF_#) from the host file
