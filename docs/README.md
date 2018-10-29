@@ -1,10 +1,10 @@
 [![GitHub release](https://img.shields.io/github/release/randyoyarzabal/reach.svg?style=social)](https://github.com/randyoyarzabal/reach/releases/latest) [![GitHub commits (since latest release)](https://img.shields.io/github/commits-since/randyoyarzabal/reach/latest.svg?style=social)](https://github.com/randyoyarzabal/reach/commits/master)
 
-## Introduction
+### Introduction
 
 Reach is an automation tool that sends SSH commands to one or more hosts.  It is similar to Ansible but Reach is meant to be a quick alternative for operating on your fleet of hosts with ad-hoc commands that operate remotely or locally in conjunction with ad-hoc host filters&mdash;without the need for any modules or pre-defining custom YAML files.  Quickly get up-and-running by using existing CSV hosts inventory to send raw/direct series of SSH commands directly to any (or all) of your hosts using on-the-fly filters making it perfect complement to any Server or Network Administrator’s tool-box.  Though it was originally written for network device management like Cisco, F5, and Brocade, etc. it is also designed to work on any remote host accessible via SSH especially those that are Linux/Unix-based.
 
-## Contents
+### Contents
 - [Features](#features)
 - [Tested Use Cases](#tested-use-cases)
 - [Installation](#installation)
@@ -21,7 +21,7 @@ Reach is an automation tool that sends SSH commands to one or more hosts.  It is
 - [Developers](#developers)
 - [Git Repository](git-repository)
 
-## Features
+### Features
 
 - Send SSH commands directly to quickly search and adopt changes to your fleet of hosts.
 - Get up-and-running quickly using an existing CSV or Excel file of hosts inventory.
@@ -30,7 +30,7 @@ Reach is an automation tool that sends SSH commands to one or more hosts.  It is
 - Password and input text obfuscation.
 - Interactive commands support via wait (expect) and send (put) strings. 
 
-## Tested Use Cases
+### Tested Use Cases
 
 - Network/host Device management (e.g. Cisco, F5, Brocade etc.)
 - Firewall (ASA, and Brocade/Vyatta) management configuration
@@ -40,17 +40,17 @@ Reach is an automation tool that sends SSH commands to one or more hosts.  It is
 - Multi-host File/State Search
 - Monitoring
 
-## Installation
+### Installation
 
    See the [INSTALL.md](INSTALL.md) file in the `docs` folder.
    
-## Sample Prerequisite Files
+### Sample Prerequisite Files
 
    - [Inventory/hosts](templates/hosts_file_sample.csv) file
    - [Configuration](templates/config_template.ini) file
    - [Batch commands](templates/sample_commands.csv) file
 
-## Synopsis
+### Synopsis
 
     ./reach.py -?
     ./reach.py -v
@@ -63,18 +63,18 @@ Reach is an automation tool that sends SSH commands to one or more hosts.  It is
     Optionally, for any mode:
     ./reach.py [--config=<config_file>] [-i inventory_file] [-k column_key] [-x] [-d]
 
-## Usage and Help
+### Usage and Help
 
     -? : This help screen
     -v : Display version information only
 
-## Operation Modes
+### Operation Modes
 
     -a : Access Check only
     -b <commands file> : Run Batch Commands (comma separated file, see template for format/options)
     -c <command> : Run Command 
 
-## Optional for Command Mode
+### Optional for Command Mode
 #### *Note that for Batch Mode, these are internally defined in the commands file.*
 
     -o : Show command console output (ignored in batch (-b option) mode)
@@ -87,7 +87,7 @@ Reach is an automation tool that sends SSH commands to one or more hosts.  It is
     -w <wait_string> : Wait string
        -p <response_string> : [Required with same length as -w] Send a string when -w string is found
 
-## Optional for all Modes 
+### Optional for all Modes 
 
     --config=<config_file> Override the default config.ini (located in the configs directory)
     --username=<ssh_user> : Force user string instead of what is configured.
@@ -101,7 +101,7 @@ Reach is an automation tool that sends SSH commands to one or more hosts.  It is
     -x : SIMULATION Mode (no connection/commands invoked)
     -d : DEBUG Mode
 
-## Special Variables or Markers
+### Special Variables or Markers
 
 #### Variables/markers:
 
@@ -126,12 +126,12 @@ Reach is an automation tool that sends SSH commands to one or more hosts.  It is
     TAB_KEY : '\t'
     SPACE_KEY : ' '
 
-## Special modes
+### Special modes
 
     --cipher_text : generate cipher text from a password for use in SSH_PASSWORD_CIPHER or $CT=<cipher_text> (-p)
     --host_fields : return a list of column headers (with $HF_#) from the host file
 
-## Examples
+### Examples
 
     - Run 'yum -y install gdb' as root, look for the strings: 'Nothing' or 'Complete', then display
         'Installed' or 'Not Installed' on the screen. Process hosts matching 'Build' column = 'WHC038'
@@ -154,7 +154,7 @@ Reach is an automation tool that sends SSH commands to one or more hosts.  It is
     ./reach.py -c 'passwd randyo' -w 'New|Retype' -p 'mypass3|mypass3' -s 'successfully' -r 'Changed password'
     Remember that -p supports $CT=<cipher text> to obfuscate the password. So it would be: -p '$CT=xxxxx|$CT=xxxxx'
 
-## Helpful Tips
+### Helpful Tips
 
     - Always be sure to run in SIMULATION (-x) mode first to see what the script is about to do!
     NOTE: Some of the example below use specific details that may not pertain to your use and is 
@@ -178,10 +178,10 @@ Reach is an automation tool that sends SSH commands to one or more hosts.  It is
     - Be sure to set SSH_COMMAND_TIMEOUT higher than the longest anticipated command duration. But not too high because
       if a command hangs, it will wait for that duration before timing out.
 
-## Developers
+### Developers
 
 - Randy Oyarzabal 
 - Francis Lan
 
-## Git Repository
+### Git Repository
 [https://github.com/randyoyarzabal/reach](https://github.com/randyoyarzabal/reach)
