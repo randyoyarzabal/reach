@@ -1,9 +1,8 @@
+[![GitHub release](https://img.shields.io/github/release/randyoyarzabal/reach.svg?style=social)](https://github.com/randyoyarzabal/reach/releases/latest) [![GitHub commits (since latest release)](https://img.shields.io/github/commits-since/randyoyarzabal/reach/latest.svg?style=social)](https://github.com/randyoyarzabal/reach/commits/master)
+
 ## Introduction
 
 Reach is an automation tool that sends SSH commands to one or more hosts.  It is similar to Ansible but Reach is meant to be a quick alternative for operating on your fleet of hosts with ad-hoc commands that operate remotely or locally in conjunction with ad-hoc host filters&mdash;without the need for any modules or pre-defining custom YAML files.  Quickly get up-and-running by using existing CSV hosts inventory to send raw/direct series of SSH commands directly to any (or all) of your hosts using on-the-fly filters making it perfect complement to any Server or Network Administrator’s tool-box.  Though it was originally written for network device management like Cisco, F5, and Brocade, etc. it is also designed to work on any remote host accessible via SSH especially those that are Linux/Unix-based.
-
-[![GitHub release](https://img.shields.io/github/release/randyoyarzabal/reach.svg?style=social)](https://github.com/randyoyarzabal/reach/releases/latest) [![GitHub commits (since latest release)](https://img.shields.io/github/commits-since/randyoyarzabal/reach/latest.svg?style=social)](https://github.com/randyoyarzabal/reach/commits/master)
-
 
 ## Contents
 - [Features](#features)
