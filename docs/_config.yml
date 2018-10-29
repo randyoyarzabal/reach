@@ -1,7 +1,11 @@
 title: Reach
+description: Automation tool for executing remote commands on multiple devices/hosts via SSH.
+author: Randy E. Oyarzabal
+author_email: github@rbpsiu.com
+url: https://reach.rbpsiu.com/
 theme: jekyll-theme-slate
 show_downloads: true
 toc: true
 overflow-x: scroll
 categories: [automation, python, paramiko, pycrypto, rbpsiu]
-tags: [automation, f5, cisco, vyatta, python, ssh, ansible]
+tags: [automation, f5, cisco, vyatta, python, bash, ssh, ansible]
