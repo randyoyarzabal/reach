@@ -56,7 +56,7 @@ and pass it to Reach like this: `./reach.py --config_file=<config file>`. Edit t
     you can set it directly. Otherwise, if you have information on a per-host basis, you can define each as the column
     in the inventory. For example, if the SSH username is in column 5: `SSH_USER_NAME : $HF_5`
 
-4. You can optionally do a quick test by checking access to your hosts or by running a simple command:
+4. You can do a quick test by checking access to your hosts or by running a simple command:
 
     - Check access to each host in the inventory file:
         > `./reach.py -a` to check your access against all the hosts.
@@ -68,7 +68,20 @@ and pass it to Reach like this: `./reach.py --config_file=<config file>`. Edit t
 
         > `./reach.py -c 'whoami' -o -f 'Type=Linux'` (append `-x` to simulate like above)
 
-That's it!
+5. Optional (but highly-recommended), you may source the bash library in the `extras` directory so that you can use (and
+possibly add your own) BASH functions:
+
+    - Add the following to your start-up files (i.e. /etc/profile, ~/.bashrc or ~/.profile):
+        > export REACH_DIR='/path_to_reach'
+        
+        > source $REACH_DIR/extras/reach_bash-lib.sh
+        
+        > export PATH=$PATH:$REACH_DIR
+        
+    - Now you may call reach by simply `reach` instead of `reach.py`.  You may also edit the library on-demand:
+        > reach.edit_library
+
+That's it! For more information on Reach command options, type: `reach.py -?`
 
 Other Notes
 -------
