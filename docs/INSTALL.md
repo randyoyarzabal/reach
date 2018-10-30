@@ -1,4 +1,4 @@
-Steps for installing/using Reach:
+Installation Instructions
 --------------------------------
 
 Notes: *Reach requires Python 2.x (NOT 3.x), paramiko, and pycrypto library modules.* Also, make sure 
@@ -20,7 +20,7 @@ stable (master) or development branches git:
         Or
     
     2. To get the development branch:
-        > `git clone https://github.com/randyoyarzabal/reach.git --branch dev --single-branch <local path>`
+        > `git clone https://github.com/randyoyarzabal/reach.git --branch dev --single-branch <local dir>`
     
 3. Create a copy of [docs/templates/config_template.ini](templates/config_template.ini) 
 as `config.ini` (exact name required) in the `configs` directory by default. Or, create it with any name you choose 
