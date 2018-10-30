@@ -1,4 +1,4 @@
-[![GitHub release](https://img.shields.io/badge/Download-Latest%20Stable%20(v1.0.3)-lightgrey.svg?style=social)](https://github.com/randyoyarzabal/reach/releases/latest) [![GitHub commits (since latest release)](https://img.shields.io/github/commits-since/randyoyarzabal/reach/latest.svg?style=social)](https://github.com/randyoyarzabal/reach/commits/master)
+[![GitHub release](https://img.shields.io/badge/Download-Release%20v1.0.3-lightgrey.svg?style=social)](https://github.com/randyoyarzabal/reach/releases/latest) [![GitHub commits (since latest release)](https://img.shields.io/github/commits-since/randyoyarzabal/reach/latest.svg?style=social)](https://github.com/randyoyarzabal/reach/commits/master)
 
 ### Introduction
 
