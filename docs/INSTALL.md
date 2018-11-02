@@ -45,11 +45,10 @@ and pass it to Reach like this: `./reach.py --config_file=<config file>`. Edit t
     
     3. Generate your password cipher text
 
-        >`./reach.py --cipher_text <password>` against all passwords you will use.  Take the output and put 
-        in `SSH_PASSWORD_CIPHER` of the `config.ini` file or define in the CSV inventory as a column then define
-        `SSH_PASSWORD_CIPHER : $HF_#` where # is the column number of the password to use. You may also use the output
-        of this for any input you'd like to obfuscate by prefixing it with `$CT=<cipher text>` before using it 
-        (i.e. with the -p option.)
+        >`./reach.py --cipher_text` for all passwords you will use.  Take the output and put in `SSH_PASSWORD_CIPHER` 
+        of the `config.ini` file or define in the CSV inventory as a column then define `SSH_PASSWORD_CIPHER : $HF_#` 
+        where # is the column number of the password to use. You may also use the output of this for any input you'd 
+        like to obfuscate by prefixing it with `$CT=<cipher text>` before using it (i.e. with the -p option.)
 
     4. Edit the rest of `config.ini` file variables to suit your needs. Note the options: `SSH_USER_NAME`, 
     `SSH_PASSWORD_CIPHER`, and `SSH_PRIVATE_KEY`: if you have one user, password, or key for your entire inventory
