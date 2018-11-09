@@ -2,7 +2,7 @@
 
 ### Introduction
 
-Reach is an automation tool that sends SSH commands to one or more hosts.  It is similar to Ansible but Reach is meant to be a quick alternative for operating on your fleet of hosts with ad-hoc commands that operate remotely or locally in conjunction with ad-hoc host filters&mdash;without the need for any modules or pre-defining custom YAML files.  Quickly get up-and-running by using existing CSV hosts inventory to send raw/direct series of SSH commands directly to any (or all) of your hosts using on-the-fly filters making it perfect complement to any Server or Network Administrator’s tool-box.  Though it was originally written for network device management like Cisco, F5, and Brocade, etc. it is also designed to work on any remote host accessible via SSH especially those that are Linux/Unix-based.
+Reach is an automation tool that sends SSH commands to one or more hosts and is the perfect complement to any Server or Network Administrator’s tool-box. It is similar to Ansible, but Reach is a faster alternative for operating on your fleet of hosts.  This is accomplished with ad-hoc commands that operate remotely or locally in conjunction with ad-hoc host filters (without the need for any modules or pre-defining custom YAML files).  While it was originally written for network device management like Cisco, F5 or Brocade, it will work on any remote host accessible via SSH, especially those that are Linux/Unix-based. You can get up-and-running very quickly by using existing CSV hosts inventory to send raw/direct series of SSH commands directly to any (or all) of your hosts using on-the-fly filters.  
 
 ### Installation
 
