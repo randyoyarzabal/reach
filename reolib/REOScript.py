@@ -23,15 +23,15 @@ class REOScript(object):
         Print author information.
         :return: None
         """
-        print (
+        print((
             self.SCRIPT_NAME + " " + self.SCRIPT_VERSION + " (" + self.SCRIPT_DATE + ")\n"
             + self.SCRIPT_AUTHOR + "\n"
-        )
+        ))
         if show_desc:
-            print (self.SCRIPT_DESCRIPTION)
+            print((self.SCRIPT_DESCRIPTION))
 
         if show_help:
-            print (self.SCRIPT_HELP)
+            print((self.SCRIPT_HELP))
 
     def usage(self):
         """
@@ -39,5 +39,5 @@ class REOScript(object):
         :return: None
         """
         self.author(show_desc=True)
-        print (self.SCRIPT_SYNTAX_OR_INFO)
-        print (self.SCRIPT_USAGE)
+        print((self.SCRIPT_SYNTAX_OR_INFO))
+        print((self.SCRIPT_USAGE))

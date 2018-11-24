@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import ConfigParser
+import configparser
 import errno
 import getopt
 import os
@@ -30,7 +30,7 @@ class Reach(REOScript):
         self.logger = None
         """Optional logger (from logging module) instance"""
 
-        self.main_config = ConfigParser.SafeConfigParser(allow_no_value=True)
+        self.main_config = configparser.ConfigParser(allow_no_value=True)
         """Config main_config instance"""
 
         self.full_path = os.path.realpath(__file__)
@@ -41,7 +41,7 @@ class Reach(REOScript):
 
         self.SCRIPT_NAME = os.path.basename(self.full_path)
         self.SCRIPT_VERSION = 'Pre-Release v1.0.4-dev (GitHub)'
-        self.SCRIPT_DATE = '01-Nov-2018'
+        self.SCRIPT_DATE = '24-Nov-2018'
         self.SCRIPT_DESCRIPTION = "Automation tool for executing remote commands on multiple devices/hosts via SSH."
         self.SCRIPT_SYNTAX_OR_INFO = "Git Repository: https://github.com/randyoyarzabal/reach"
         self.SCRIPT_HELP = "Help/usage: reach.py -?"
@@ -161,11 +161,11 @@ Tips:
         except KeyboardInterrupt:
             REOUtility.key_interrupt()
         except getopt.GetoptError as e:
-            print "Invalid argument: %s" % str(e)
+            print("Invalid argument: %s" % str(e))
             self.author(show_help=True)
             sys.exit(2)
         if len(opts) == 0 or len(args) > 0:
-            print "Invalid argument(s) combination passed."
+            print("Invalid argument(s) combination passed.")
             self.author(show_desc=True, show_help=True)
             sys.exit(2)
 
@@ -175,7 +175,7 @@ Tips:
                 set_cli_config(opt, True)
                 user_opts[opt] = True
             if opt in STRING_OPTS:
-                if SWITCH_KEYS[opt] == FILTER_STRING and FILTER_STRING in cli_config.keys():
+                if SWITCH_KEYS[opt] == FILTER_STRING and FILTER_STRING in list(cli_config.keys()):
                     concat_condition = cli_config[FILTER_STRING] + "&" + arg
                     set_cli_config(opt, concat_condition)
                     user_opts[opt] = concat_condition
@@ -205,9 +205,9 @@ Tips:
         # Special operations
         if config[OPERATION] == SHOW_AUTHOR:
             self.author(show_desc=False, show_help=False)
-            print 'Change History:\n'
+            print('Change History:\n')
             with open(self.dir_path + '/CHANGES.txt', 'r') as fin:
-                print fin.read()
+                print(fin.read())
             sys.exit(2)
 
         if config[OPERATION] == SHOW_USAGE:
@@ -221,13 +221,13 @@ Tips:
                    "It is simply meant to conceal/obfuscate and prevent passwords from being displayed in clear-text.\n"
                    "It is useful in the SSH_PASSWORD_CIPHER config or as $CT=<cipher_text> with the -p option.\n")
             if config[CIPHER_KEY_FILE]:
-                print "The cipher-key file: %s was used. " % config[CIPHER_KEY_FILE]
+                print("The cipher-key file: %s was used. " % config[CIPHER_KEY_FILE])
                 cipher_key = REOUtility.get_string_from_file(config[CIPHER_KEY_FILE])
             else:
-                print "Warning: using built-in cipher-key.  It is recommended to set 'CIPHER_KEY_FILE' config."
+                print("Warning: using built-in cipher-key.  It is recommended to set 'CIPHER_KEY_FILE' config.")
                 cipher_key = REOUtility.CIPHER_KEY
-            print "Note that decryption of the text below will only work with the cipher key it is encrypted with."
-            print "\nCipher text: '" + REOUtility.encrypt_str(input_pass[1], cipher_key) + "'"
+            print("Note that decryption of the text below will only work with the cipher key it is encrypted with.")
+            print("\nCipher text: '" + REOUtility.encrypt_str(input_pass[1], cipher_key) + "'")
             sys.exit(0)
 
         if config[SSH_AGENT_ONLY]:
@@ -268,13 +268,16 @@ Tips:
                 raise IOError(config[file_key] + " doesn't exist.")
 
         # -k must be used with -i
-        if HOSTS_INVENTORY_FILE in cli_config.keys():
-            if IP_OR_HOST_COLUMN not in cli_config.keys():
+        if HOSTS_INVENTORY_FILE in list(cli_config.keys()):
+            if IP_OR_HOST_COLUMN not in list(cli_config.keys()):
                 raise ValueError("'" + SWITCH_VALUE[HOSTS_INVENTORY_FILE] + "' can only be used in conjunction with '" +
                                  SWITCH_VALUE[IP_OR_HOST_COLUMN] + "'.")
+
         # Check hosts file
         hosts_file = REODelimitedFile(config[HOSTS_INVENTORY_FILE], has_header=True)
         max_column = len(hosts_file.header_list)
+
+
         if config[IP_OR_HOST_COLUMN] not in hosts_file.header_list:
             raise ValueError("Column '" + config[IP_OR_HOST_COLUMN] + "' cannot be found in hosts file.")
         if config[FILTER_STRING]:
@@ -290,6 +293,8 @@ Tips:
                         "Filter '" + cond['cond'] + "' invalid, please specify '~', '=', or '!' for each filter.")
                 if cond['splits'][0] not in hosts_file.header_list:
                     raise ValueError("Column '" + cond['splits'][0] + "' cannot be found in hosts file.")
+
+
 
         del hosts_file
 
@@ -357,7 +362,7 @@ Tips:
                     "Option '" + SWITCH_VALUE[HALT_ON_STRING] + "' must be used in conjunction with option '" +
                     SWITCH_VALUE[COMMAND_FIND_STRING] + "'.")
 
-            command_raw = ','.join(command.values())
+            command_raw = ','.join(list(command.values()))
             hvars = re.findall(re.escape(COLUMN_VARIABLE) + '\d*', command_raw)
             for hvar in hvars:
                 if int(hvar.split("_")[1]) > max_column:
@@ -380,7 +385,7 @@ Tips:
         config_file = cli_config[CONFIG_FILE] if (CONFIG_FILE in cli_config) else config[CONFIG_FILE]
 
         if not os.path.isfile(config_file):
-            print("Aborted...Config File defined: " + config_file + " doesn't exist.")
+            print(("Aborted...Config File defined: " + config_file + " doesn't exist."))
             sys.exit(1)
 
         # Override system defaults with user defaults
@@ -417,7 +422,7 @@ Tips:
                 os.makedirs(os.path.dirname(config[LOGS_DIRECTORY]))
             except OSError as exc:  # Guard against race condition
                 if exc.errno != errno.EEXIST:
-                    print "Unable to create log directory defined: " + config[LOGS_DIRECTORY]
+                    print("Unable to create log directory defined: " + config[LOGS_DIRECTORY])
                     sys.exit(1)
 
         # Set logging file and level
@@ -431,31 +436,31 @@ Tips:
             self.check_prerequisites()
 
         except Exception as error:
-            print("Aborted..." + error.message)
-            print "Use: 'reach.py -?' for usage/help."
+            print(("Aborted..." + error.message))
+            print("Use: 'reach.py -?' for usage/help.")
             sys.exit(1)
 
         self.author()
 
         if config[OPERATION] == OPERATION_ACCESS:
-            print ("== | Operation: Access Check" + self.get_simulation_str() + " | ==\n")
+            print(("== | Operation: Access Check" + self.get_simulation_str() + " | ==\n"))
             self.log(logging.INFO, "Access Mode Started", False)
             self.sshworker = CheckAccessWorker(logger=self.logger)
             self.sshworker.SHOW_HOST_DURATION = False  # Force to false, this is never needed in this mode
         if config[OPERATION] == OPERATION_BATCH:
-            print ("== | Operation: Run Batch Commands from File" + self.get_simulation_str() + " | ==\n")
+            print(("== | Operation: Run Batch Commands from File" + self.get_simulation_str() + " | ==\n"))
             self.sshworker = RunBatchCommandsWorker(config[BATCH_FILE], logger=self.logger)
             self.log(logging.INFO, "Batch Mode Started", False)
             self.log(logging.INFO, "Processing batch file: " + config[BATCH_FILE], False)
         if config[OPERATION] == OPERATION_COMMAND:
-            print ("== | Operation: Run Command" + self.get_simulation_str() + " | ==\n")
+            print(("== | Operation: Run Command" + self.get_simulation_str() + " | ==\n"))
             self.log(logging.INFO, "Command Mode Started", False)
             self.sshworker = RunCommandWorker(logger=self.logger)
             self.sshworker.str_vars_exist = check_for_vars()
         if config[OPERATION] == HOST_FIELDS:
             self.sshworker = CheckAccessWorker(logger=self.logger)
-            print ("This is a list of the available column names in " + config[HOSTS_INVENTORY_FILE] + " along with \n"
-                                                                                                       "  the corresponding $HF_# that can be used as command-line options or in the config.\n")
+            print(("This is a list of the available column names in " + config[HOSTS_INVENTORY_FILE] + " along with \n"
+                                                                                                       "  the corresponding $HF_# that can be used as command-line options or in the config.\n"))
             self.sshworker.display_host_fields()
             sys.exit(0)
 
@@ -473,7 +478,7 @@ Tips:
         :return:
         """
         if print_to_screen:
-            print message
+            print(message)
         if self.util.debug and level == logging.DEBUG:
             self.util.print_debug(message)
         if self.logger:

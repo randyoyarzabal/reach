@@ -104,9 +104,9 @@ class REOUtility:
         """
         if self.debug:
             if desc:
-                print ("[ DEBUG ] " + desc + ': ==>' + str(s) + '<==')
+                print(("[ DEBUG ] " + desc + ': ==>' + str(s) + '<=='))
             else:
-                print ("[ DEBUG ] " + s)
+                print(("[ DEBUG ] " + s))
 
     @classmethod
     def is_valid_ipv4_address(cls, address):
@@ -217,16 +217,16 @@ class REOUtility:
             raise ValueError("Invalid default answer: '%s'" % default)
 
         while True:
-            print question + prompt,
-            choice = raw_input().lower()
+            print(question + prompt, end=' ')
+            choice = input().lower()
             if default is not None and choice == '':
-                print ""  # Display blank line
+                print("")  # Display blank line
                 return valid[default]
             elif choice in valid:
-                print ""  # Display blank line
+                print("")  # Display blank line
                 return valid[choice]
             else:
-                print "Please respond with 'yes' or 'no' (or 'y' or 'n')"
+                print("Please respond with 'yes' or 'no' (or 'y' or 'n')")
 
     @classmethod
     def encrypt_str(cls, i_str, cipher_key=None):
@@ -325,8 +325,8 @@ class REOUtility:
         password = ''
         if user_prompt:
             while not username:
-                print desc + " User Name: ",
-                username = raw_input()
+                print(desc + " User Name: ", end=' ')
+                username = input()
 
         if password_prompt:
             pwdprompt = lambda: (getpass.getpass(prompt=desc + ' Password: '), getpass.getpass('Retype password: '))
@@ -399,8 +399,8 @@ class REOUtility:
             try:
                 dict1[option] = parser.get(section, option)
                 if dict1[option] == -1:
-                    print "skip: %s" % option
+                    print("skip: %s" % option)
             except:
-                print("exception on %s!" % option)
+                print(("exception on %s!" % option))
                 dict1[option] = None
         return dict1

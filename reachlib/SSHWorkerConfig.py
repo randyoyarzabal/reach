@@ -139,7 +139,7 @@ SWITCH_KEYS['--host_fields'] = HOST_FIELDS
 
 # Reverse of above
 SWITCH_VALUE = {}
-for key, value in SWITCH_KEYS.iteritems():
+for key, value in SWITCH_KEYS.items():
     SWITCH_VALUE[value] = key
 
 user_opts = collections.OrderedDict()
