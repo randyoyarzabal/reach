@@ -280,7 +280,6 @@ class REORemoteHost(object):
         while match is None:
             try:
                 output += self.shell.recv(1024).decode("utf-8")
-                self.util.print_debug(output, 'Output Buffer')
                 match = re.search(self.original_prompt_regex, output)
             except KeyboardInterrupt:
                 self.util.key_interrupt()
