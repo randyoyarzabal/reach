@@ -3,7 +3,7 @@ Git Repo: https://github.com/randyoyarzabal/reach
 Legend: + : added, - : removed, * : fixed, = : modified
 
 v1.0.4 [24-11-2018] - Pre Release
-- Updated to worok for Python 3
+- Updated to work for Python 3
 
 v1.0.3 [24-Oct-2018] - Latest Stable
 ------------
