@@ -7,8 +7,9 @@ import os
 import re
 import sys
 import warnings
+
 # Temporary till paramiko can be updated
-warnings.filterwarnings(action='ignore',module='.*paramiko.*')
+warnings.filterwarnings(action='ignore', module='.*paramiko.*')
 
 from reachlib import *
 from reolib import *
@@ -150,6 +151,7 @@ Tips:
            You may then paste the output as a new column in your inventory file.
         """
 
+    # ToDo: Implement with ArgParse
     def read_switches(self, argv):
         """
         Read command-line switches.
@@ -220,9 +222,9 @@ Tips:
         if config[OPERATION] == CIPHER:
             self.author()
             input_pass = REOUtility.prompt_user_password(user_prompt=False, desc="Convert to cipher text ==>")
-            print ("\nWarning: this cipher text form is only useful in Reach.  It is by no means secure.\n"
-                   "It is simply meant to conceal/obfuscate and prevent passwords from being displayed in clear-text.\n"
-                   "It is useful in the SSH_PASSWORD_CIPHER config or as $CT=<cipher_text> with the -p option.\n")
+            print("\nWarning: this cipher text form is only useful in Reach.  It is by no means secure.\n"
+                  "It is simply meant to conceal/obfuscate and prevent passwords from being displayed in clear-text.\n"
+                  "It is useful in the SSH_PASSWORD_CIPHER config or as $CT=<cipher_text> with the -p option.\n")
             if config[CIPHER_KEY_FILE]:
                 print("The cipher-key file: %s was used. " % config[CIPHER_KEY_FILE])
                 cipher_key = REOUtility.get_string_from_file(config[CIPHER_KEY_FILE])
@@ -280,7 +282,6 @@ Tips:
         hosts_file = REODelimitedFile(config[HOSTS_INVENTORY_FILE], has_header=True)
         max_column = len(hosts_file.header_list)
 
-
         if config[IP_OR_HOST_COLUMN] not in hosts_file.header_list:
             raise ValueError("Column '" + config[IP_OR_HOST_COLUMN] + "' cannot be found in hosts file.")
         if config[FILTER_STRING]:
@@ -296,8 +297,6 @@ Tips:
                         "Filter '" + cond['cond'] + "' invalid, please specify '~', '=', or '!' for each filter.")
                 if cond['splits'][0] not in hosts_file.header_list:
                     raise ValueError("Column '" + cond['splits'][0] + "' cannot be found in hosts file.")
-
-
 
         del hosts_file
 

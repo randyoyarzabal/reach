@@ -28,6 +28,7 @@ class BaseREOSSHWorker(object):
         self.current_host = None
         """Current host being processed"""
 
+        # ToDo: Implement to support CSV, JSON or even a YAML file.
         self.hosts = REODelimitedFile(config[HOSTS_INVENTORY_FILE], ',', has_header=True)
         """Main hosts file for processing"""
 
