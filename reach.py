@@ -9,7 +9,7 @@ import sys
 import warnings
 
 # Temporary till paramiko can be updated
-warnings.filterwarnings(action='ignore', module='.*paramiko.*')
+# warnings.filterwarnings(action='ignore', module='.*paramiko.*')
 
 from reachlib import *
 from reolib import *
@@ -44,8 +44,8 @@ class Reach(REOScript):
         """Directory only of running script"""
 
         self.SCRIPT_NAME = os.path.basename(self.full_path)
-        self.SCRIPT_VERSION = 'v1.0.4 (GitHub - Dev Branch)'
-        self.SCRIPT_DATE = '23-Mar-2019'
+        self.SCRIPT_VERSION = 'v1.0.5 (GitHub - Dev Branch)'
+        self.SCRIPT_DATE = '24-Mar-2020'
         self.SCRIPT_DESCRIPTION = "Automation tool for executing remote commands on multiple devices/hosts via SSH."
         self.SCRIPT_SYNTAX_OR_INFO = "Git Repository: https://github.com/randyoyarzabal/reach"
         self.SCRIPT_HELP = "Help/usage: reach.py -?"
@@ -232,7 +232,7 @@ Tips:
                 print("Warning: using built-in cipher-key.  It is recommended to set 'CIPHER_KEY_FILE' config.")
                 cipher_key = REOUtility.CIPHER_KEY
             print("Note that decryption of the text below will only work with the cipher key it is encrypted with.")
-            print("\nCipher text: '" + REOUtility.encrypt_str(input_pass[1], cipher_key).decode('utf-8') + "'")
+            print("\nCipher text: '" + REOUtility.encrypt_str(input_pass[1], cipher_key) + "'")
             sys.exit(0)
 
         if config[SSH_AGENT_ONLY]:

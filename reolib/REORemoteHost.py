@@ -153,16 +153,22 @@ class REORemoteHost(object):
         self.log(logging.DEBUG, "User Name: " + self.usr, False)
 
         # Try agent authentication
-        self.connected = self.__connect("Trying agent authentication.", self.host, self.usr, timeout=conn_timeout,
-                                        allow_agent=True, look_for_keys=True)
+        self.connected = self.__connect("Trying agent (and default key) authentication.", self.host, self.usr,
+                                        timeout=conn_timeout,
+                                        allow_agent=True, look_for_keys=False)
 
         if not agent_only:
 
             # Try user-defined private-key authentication
             if not self.connected:
                 self.connected = self.__connect("Trying private key file: " + self.key_file, self.host, self.usr,
-                                                timeout=conn_timeout, private_key_file=self.key_file, password=self.pwd,
-                                                allow_agent=False, look_for_keys=False)
+                                                timeout=conn_timeout, private_key_file=self.key_file,
+                                                allow_agent=False, look_for_keys=True)
+                if self.key_file:
+                    self.log(logging.DEBUG, "Key File: " + self.key_file, False)
+                else:
+                    if self.connected:
+                        self.log(logging.DEBUG, "Used default id_rsa key.", False)
 
             # Try user/password authentication
             if not self.connected:
