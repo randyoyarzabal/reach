@@ -8,8 +8,42 @@ import socket
 import subprocess
 import traceback
 from logging.handlers import RotatingFileHandler
+import random
+import string
+import base64, hashlib
+from Crypto import Random
+from Crypto.Cipher import AES
 
-from Crypto.Cipher import XOR
+
+class PasswordBlur:
+    """
+    Class for obfuscating passwords from clear-text to an encrypted string.
+    Based on code from StackOverflow: https://stackoverflow.com/a/21928790
+    """
+
+    def __init__(self, cipher_key):
+        self.bs = AES.block_size
+        self.key = hashlib.sha256(cipher_key.encode()).digest()
+
+    def encrypt(self, clear_txt):
+        clear_txt = self._pad(clear_txt)
+        iv = Random.new().read(AES.block_size)
+        cipher = AES.new(self.key, AES.MODE_CBC, iv)
+        ret_val = base64.b64encode(iv + cipher.encrypt(clear_txt.encode()))
+        return ret_val.decode('utf-8')
+
+    def decrypt(self, blur_txt):
+        blur_txt = base64.b64decode(blur_txt.encode('utf-8'))
+        iv = blur_txt[:AES.block_size]
+        cipher = AES.new(self.key, AES.MODE_CBC, iv)
+        return self._unpad(cipher.decrypt(blur_txt[AES.block_size:])).decode('utf-8')
+
+    def _pad(self, s):
+        return s + (self.bs - len(s) % self.bs) * chr(self.bs - len(s) % self.bs)
+
+    @staticmethod
+    def _unpad(s):
+        return s[:-ord(s[len(s) - 1:])]
 
 
 class REOUtility:
@@ -104,9 +138,9 @@ class REOUtility:
         """
         if self.debug:
             if desc:
-                print ("[ DEBUG ] " + desc + ': ==>' + str(s) + '<==')
+                print(("[ DEBUG ] " + desc + ': ==>' + str(s) + '<=='))
             else:
-                print ("[ DEBUG ] " + s)
+                print(("[ DEBUG ] " + s))
 
     @classmethod
     def is_valid_ipv4_address(cls, address):
@@ -161,7 +195,7 @@ class REOUtility:
         Display keyboard interrupt message
         :return: None
         """
-        print ("\n\nAw shucks, Ctrl-C detected. Exiting...\n")
+        print("\n\nAw shucks, Ctrl-C detected. Exiting...\n")
         quit()
 
     def run_os_command(self, c):
@@ -217,16 +251,16 @@ class REOUtility:
             raise ValueError("Invalid default answer: '%s'" % default)
 
         while True:
-            print question + prompt,
-            choice = raw_input().lower()
+            print(question + prompt, end=' ')
+            choice = input().lower()
             if default is not None and choice == '':
-                print ""  # Display blank line
+                print("")  # Display blank line
                 return valid[default]
             elif choice in valid:
-                print ""  # Display blank line
+                print("")  # Display blank line
                 return valid[choice]
             else:
-                print "Please respond with 'yes' or 'no' (or 'y' or 'n')"
+                print("Please respond with 'yes' or 'no' (or 'y' or 'n')")
 
     @classmethod
     def encrypt_str(cls, i_str, cipher_key=None):
@@ -238,10 +272,12 @@ class REOUtility:
         :return: Encrypted string
         """
         if not cipher_key:
-            cipher = XOR.new(REOUtility.CIPHER_KEY)
+            cipher = REOUtility.CIPHER_KEY
         else:
-            cipher = XOR.new(cipher_key)
-        return base64.b64encode(cipher.encrypt(i_str))
+            cipher = cipher_key
+
+        pass_blur = PasswordBlur(cipher)
+        return pass_blur.encrypt(i_str)
 
     @classmethod
     def decrypt_str(cls, e_str, cipher_key=None):
@@ -252,10 +288,12 @@ class REOUtility:
         :return: Decrypted string
         """
         if not cipher_key:
-            cipher = XOR.new(REOUtility.CIPHER_KEY)
+            cipher = REOUtility.CIPHER_KEY
         else:
-            cipher = XOR.new(cipher_key)
-        return cipher.decrypt(base64.b64decode(e_str))
+            cipher = cipher_key
+
+        pass_blur = PasswordBlur(cipher)
+        return pass_blur.decrypt(e_str)
 
     @classmethod
     def escape_string(cls, e_str):
@@ -325,8 +363,8 @@ class REOUtility:
         password = ''
         if user_prompt:
             while not username:
-                print desc + " User Name: ",
-                username = raw_input()
+                print(desc + " User Name: ", end=' ')
+                username = input()
 
         if password_prompt:
             pwdprompt = lambda: (getpass.getpass(prompt=desc + ' Password: '), getpass.getpass('Retype password: '))
@@ -399,8 +437,8 @@ class REOUtility:
             try:
                 dict1[option] = parser.get(section, option)
                 if dict1[option] == -1:
-                    print "skip: %s" % option
+                    print("skip: %s" % option)
             except:
-                print("exception on %s!" % option)
+                print(("exception on %s!" % option))
                 dict1[option] = None
         return dict1

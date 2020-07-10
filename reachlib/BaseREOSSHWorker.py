@@ -5,6 +5,7 @@ from reachlib.SSHWorkerConfig import *
 from reolib.REODelimitedFile import REODelimitedFile
 from reolib.REORemoteHost import REORemoteHost
 from reolib.REOUtility import REOUtility
+from functools import reduce
 
 
 class BaseREOSSHWorker(object):
@@ -27,6 +28,7 @@ class BaseREOSSHWorker(object):
         self.current_host = None
         """Current host being processed"""
 
+        # ToDo: Implement to support CSV, JSON or even a YAML file.
         self.hosts = REODelimitedFile(config[HOSTS_INVENTORY_FILE], ',', has_header=True)
         """Main hosts file for processing"""
 
@@ -113,7 +115,7 @@ class BaseREOSSHWorker(object):
                     else:
                         conditions = [config[FILTER_STRING]]
 
-                    conditions_values = map(lambda condition: self.__eval_condition(condition), conditions)
+                    conditions_values = [self.__eval_condition(condition) for condition in conditions]
                     skip_host = not reduce(lambda x, y: x & y if alltrue else x | y, conditions_values)
 
                     if skip_host:
@@ -134,7 +136,7 @@ class BaseREOSSHWorker(object):
             if self.phost_count % 10:  # Don't delay writing to file for every 10 hosts processed.
                 self.last_run_log.flush()
 
-        print ""
+        print("")
         self.log(logging.INFO,
                  "Script Duration: " + str(self.util.get_current_duration()) + " " + STRINGS_DELIMITER + " " + str(
                      self.phost_count) + " out of " + str(len(self.hosts)) + " hosts processed.", True)
@@ -169,10 +171,10 @@ class BaseREOSSHWorker(object):
         self.rhost.str_vars_exist = self.str_vars_exist
 
         if config[HOST_DISPLAY_FORMAT]:
-            print self.__get_process_str() + self.replace_column_vars(config[HOST_DISPLAY_FORMAT]) + " ...",
+            print(self.__get_process_str() + self.replace_column_vars(config[HOST_DISPLAY_FORMAT]) + " ...", end=' ')
             self.log(logging.INFO, "Processing host: " + self.replace_column_vars(config[HOST_DISPLAY_FORMAT]))
         else:
-            print self.__get_process_str() + self.host_or_ip + " ...",
+            print(self.__get_process_str() + self.host_or_ip + " ...", end=' ')
             self.log(logging.INFO, "Processing host: " + self.host_or_ip)
         sys.stdout.flush()
 
@@ -192,7 +194,7 @@ class BaseREOSSHWorker(object):
             # Implemented in different ways by concrete classes
             retval = self.host_work()
             if config[SHOW_HOST_DURATION] and config[OPERATION] != OPERATION_ACCESS:
-                print ("  Host Duration: " + str(self.util.stop_timer()))
+                print(("  Host Duration: " + str(self.util.stop_timer())))
 
         return retval
 
@@ -215,17 +217,17 @@ class BaseREOSSHWorker(object):
         if config[RUN_SUDO_FIRST]:
             sudo_cmd = 'sudo su -'
             if self.str_vars_exist:
-                print ("  Switching to root user with: \'" + sudo_cmd + "\'")
+                print(("  Switching to root user with: \'" + sudo_cmd + "\'"))
                 self.log(logging.INFO, 'Sudo switch to root user', False)
             output, error_msg = self.rhost.send_cmd_wait_respond(sudo_cmd, last_run_log=self.last_run_log)
 
             if error_msg:
                 if config[SHOW_CONSOLE_OUTPUT]:
-                    print ("  - Console Output: \n" + output)
+                    print(("  - Console Output: \n" + output))
                 return retval, error_msg
 
         if self.str_vars_exist:
-            print ("  Running command: \'" + self.command_string + "\'")
+            print(("  Running command: \'" + self.command_string + "\'"))
             self.log(logging.INFO, "Running command: \'" + self.command_string + "\'", False)
 
         if self.search_string or self.wait_string:
@@ -238,7 +240,7 @@ class BaseREOSSHWorker(object):
 
             if self.report_string and (w != ''):
                 result = self.report_strings[self.search_strings.index(w)]
-                print ("  - " + result)
+                print(("  - " + result))
                 self.log(logging.INFO, "Report String: " + result, False)
                 self.last_run_log.write(result + "\n")
                 self.log(logging.DEBUG, "Command Wait String Found: " + w, False)
@@ -249,7 +251,7 @@ class BaseREOSSHWorker(object):
 
             if config[HALT_ON_STRING]:
                 if w == self.search_strings[0]:
-                    print ("  - Found: \'" + w + "\' halting as requested.")
+                    print(("  - Found: \'" + w + "\' halting as requested."))
                     self.log(logging.INFO, "Found \'" + w + "\' halting as requested.", True)
                     retval = False  # Stop hosts loop, we found what we are looking for
 
@@ -258,7 +260,7 @@ class BaseREOSSHWorker(object):
             output, error_msg = self.rhost.send_cmd_wait_respond(self.command_string, last_run_log=self.last_run_log)
 
         if config[SHOW_CONSOLE_OUTPUT]:
-            print ("  - Console Output: \n" + output)
+            print(("  - Console Output: \n" + output))
 
         return retval, error_msg
 
@@ -268,47 +270,47 @@ class BaseREOSSHWorker(object):
         :return:
         """
         # Display for any mode
-        print "Hosts File: " + config[HOSTS_INVENTORY_FILE]
+        print("Hosts File: " + config[HOSTS_INVENTORY_FILE])
 
         if not self.str_vars_exist:
             if config[RUN_SUDO_FIRST]:
                 print ("- Will switch to root user with: \'sudo su -\'")
 
             if config[OPERATION] != OPERATION_ACCESS:
-                print "- Command string to run: '" + config[COMMAND_STRING] + "'"
+                print("- Command string to run: '" + config[COMMAND_STRING] + "'")
 
             if config[LOCAL_COMMAND]:
-                print "- Will run command locally"
+                print("- Will run command locally")
 
             if config[COMMAND_FIND_STRING]:
-                print "- Search String: '" + config[COMMAND_FIND_STRING] + "'"
+                print("- Search String: '" + config[COMMAND_FIND_STRING] + "'")
 
             if config[COMMAND_REPORT_STRING]:
-                print "  - Report String: '" + config[COMMAND_REPORT_STRING] + "'"
+                print("  - Report String: '" + config[COMMAND_REPORT_STRING] + "'")
 
             if config[COMMAND_WAIT_STRING]:
-                print "- Wait String: '" + config[COMMAND_WAIT_STRING] + "'"
+                print("- Wait String: '" + config[COMMAND_WAIT_STRING] + "'")
 
             if config[COMMAND_SEND_STRING]:
                 tmp_list = config[COMMAND_SEND_STRING].split(STRINGS_DELIMITER)
                 tmp_list = STRINGS_DELIMITER.join(
                     self.__replace_vars_in_list(tmp_list, replace_column=False, display_only=True))
-                print "  - Send/Response String: '" + tmp_list + "'"
+                print("  - Send/Response String: '" + tmp_list + "'")
 
             if config[SHOW_CONSOLE_OUTPUT]:
-                print "- Show console output"
+                print("- Show console output")
 
             if config[HALT_ON_STRING] and config[COMMAND_FIND_STRING]:
-                print ("- If " + config[COMMAND_FIND_STRING] + " is found, hosts loop will halt")
+                print(("- If " + config[COMMAND_FIND_STRING] + " is found, hosts loop will halt"))
 
             if config[SHOW_HOST_DURATION] and config[OPERATION] != OPERATION_ACCESS:
                 print ("- Calculate and show host processing duration")
 
         # Display the rest for specific modes
         if config[OPERATION] == OPERATION_BATCH:
-            print "- Commands File: " + config[BATCH_FILE]
+            print("- Commands File: " + config[BATCH_FILE])
         if config[FILTER_STRING]:
-            print ("Filter found. Filtering processing to: '" + config[FILTER_STRING]) + "'"
+            print(("Filter found. Filtering processing to: '" + config[FILTER_STRING]) + "'")
 
         print ("--------------------------------------------------------------------")
 
@@ -351,22 +353,22 @@ class BaseREOSSHWorker(object):
             print ("  Switch to root user with: \'sudo su -\'")
 
         if config[LOCAL_COMMAND]:
-            print ("  Run command locally: \'" + self.command_string + "\'")
+            print(("  Run command locally: \'" + self.command_string + "\'"))
         else:
-            print ("  Run command: \'" + self.command_string + "\'")
+            print(("  Run command: \'" + self.command_string + "\'"))
 
         if self.search_string:
-            print ("  - Search for string(s): " + self.search_string)
+            print(("  - Search for string(s): " + self.search_string))
 
             if self.report_string:
-                print "    - Display string(s): '" + self.report_string + "'"
+                print("    - Display string(s): '" + self.report_string + "'")
 
         if self.wait_string:
-            print ("  - Wait for string(s) in sequence: " + self.wait_string)
-            print ("    - Send string(s) in sequence: " + self.response_string_display)
+            print(("  - Wait for string(s) in sequence: " + self.wait_string))
+            print(("    - Send string(s) in sequence: " + self.response_string_display))
 
         if config[HALT_ON_STRING] and self.search_string:
-            print ("  - If '" + self.search_string + "' is found, hosts loop will halt.")
+            print(("  - If '" + self.search_string + "' is found, hosts loop will halt."))
 
         if config[SHOW_CONSOLE_OUTPUT]:
             print ("  - Print console output")
@@ -380,9 +382,9 @@ class BaseREOSSHWorker(object):
         :return: True signal continuation of hosts iteration, False otherwise (halt).
         """  # Running in simulation mode
         if config[HOST_DISPLAY_FORMAT]:
-            print (self.__get_process_str() + self.replace_column_vars(config[HOST_DISPLAY_FORMAT]))
+            print((self.__get_process_str() + self.replace_column_vars(config[HOST_DISPLAY_FORMAT])))
         else:
-            print (self.__get_process_str() + self.host_or_ip)
+            print((self.__get_process_str() + self.host_or_ip))
 
         # Implemented in different ways by concrete classes
         self.run_simulation()
@@ -402,7 +404,7 @@ class BaseREOSSHWorker(object):
         for i, col in enumerate(self.hosts.header_list):
             if col == config[IP_OR_HOST_COLUMN]:
                 col = col + " (Key Column)"
-            print '$HF_%s = %s' % (str(i + 1), col)
+            print('$HF_%s = %s' % (str(i + 1), col))
 
     def __eval_condition(self, filter):
         """
@@ -499,7 +501,7 @@ class BaseREOSSHWorker(object):
         :return:
         """
         if print_to_screen:
-            print message
+            print(message)
 
         if self.util.debug and level == logging.DEBUG:
             self.util.print_debug(message)

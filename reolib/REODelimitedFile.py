@@ -1,7 +1,7 @@
 import logging
 import sys
 
-from REOUtility import REOUtility
+from .REOUtility import REOUtility
 
 
 class REODelimitedFile(object):
@@ -51,7 +51,7 @@ class REODelimitedFile(object):
             sys.exit(1)
 
         if self.has_header:
-            self.header_list = self.infile.next().split(self.delimiter)
+            self.header_list = self.infile.readline().split(self.delimiter)
             # Strip any leading/trailing spaces from headers
             self.header_list = [header.strip() for header in self.header_list]
 
@@ -67,7 +67,7 @@ class REODelimitedFile(object):
         """
         self.infile.seek(0)
         if self.header_list:
-            self.infile.next()
+            next(self.infile)
         return self
 
     def __len__(self):
@@ -77,22 +77,22 @@ class REODelimitedFile(object):
         """
         return self.row_count
 
-    def next(self):
+    def __next__(self):
         """
         Get the next row in the file.
         :return:  If headers exist, a dict, a list otherwise.
         """
         # Move read head past blank lines and implicitly stops iteration when EOL is reached.
-        rowdata = self.infile.next()
+        rowdata = next(self.infile)
         while not rowdata.strip():
-            rowdata = self.infile.next()
+            rowdata = next(self.infile)
 
         # Strip any leading/trailing spaces from data fields
         host_values = [val.strip() for val in rowdata.split(self.delimiter)]
 
         if self.header_list:
             # Headers found return row as a dict
-            self.current_row = dict(zip(self.header_list, host_values))
+            self.current_row = dict(list(zip(self.header_list, host_values)))
         else:
             # No headers found, return row as a list
             self.current_row = host_values
@@ -131,7 +131,7 @@ class REODelimitedFile(object):
         :return:
         """
         if print_to_screen:
-            print message
+            print(message)
         if self.logger:
             self.logger.log(level, message)
 

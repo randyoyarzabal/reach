@@ -8,6 +8,7 @@ logs/*
 testDriver.py
 bashTests.sh
 config.ini
+inventory.*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

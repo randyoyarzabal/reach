@@ -34,7 +34,7 @@ alias reach='$REACH_TOOL'
 uname_out="$(uname -s)"
 case "${uname_out}" in
     Linux*)     PLATFORM='Linux';;
-    Darwin*)    PLATFORM='Mac';;
+    Darwin*)    PLATFORM='MacOS';;
     CYGWIN*)    PLATFORM='Cygwin';;
     MINGW*)     PLATFORM='MinGw';;
     *)          PLATFORM="UNKNOWN:${uname_out}"
@@ -84,7 +84,7 @@ function reach.edit_library() {
    fi
 
    file="$REACH_BASH_LIB";
-   if [ "$PLATFORM" == "Mac"  ]; then
+   if [ "$PLATFORM" == "MacOS"  ]; then
        date=$(stat -f "%Sm" -t "%Y%m%dT%H%M%S" "$file");
        vi $file;
        date2=$(stat -f "%Sm" -t "%Y%m%dT%H%M%S" "$file");
@@ -113,7 +113,7 @@ function reach.reload_library() {
 
 function __timer () {
    # Usage: __timer <start | end>
-   if [ "$PLATFORM" != "Mac" ]; then  # Need to figure out the Mac equivalent of below
+   if [ "$PLATFORM" != "MacOS" ]; then  # Need to figure out the Mac equivalent of below
       if [ "$1" = "start" ]; then SECONDS=0; return; fi
       if [ "$1" = "end" ]; then echo "Task took: "`date +%T -d "1/1 + $SECONDS sec"`; fi
    fi
@@ -164,8 +164,13 @@ alias be='__begin'
 function __show_progress() {
    # Usage: __show_progress <msg> <command> <output_variable>
    MSG_LENGTH=$(echo -n $1 | wc -m)
+
    # Create a random file to hold output
-   tmp_file="/tmp/._`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1`"
+   if [[ ${PLATFORM} == "MacOS" ]]; then
+      tmp_file="/tmp/._`cat /dev/random | LC_CTYPE=C tr -dc "[:alpha:]" | fold -w 8 | head -n 1`"
+   else
+      tmp_file="/tmp/._`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1`"
+   fi
 
    # Process the command in the background until it returns (saving the output to the temp file.
    #   In the meantime, keep printing the spinner chars.

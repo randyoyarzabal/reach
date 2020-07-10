@@ -23,7 +23,7 @@ class RunCommandWorker(BaseREOSSHWorker):
     def host_work(self):
         retval, error_msg = self.run_command()
         if error_msg:
-            print("  - Error: " + error_msg)
+            print(("  - Error: " + error_msg))
         return retval
 
     def run_simulation(self):
@@ -136,12 +136,12 @@ class RunBatchCommandsWorker(BaseREOSSHWorker):
                 self.simulate_command()
             else:
                 if config[LOCAL_COMMAND]:
-                    print ("    Running command locally: " + config[COMMAND_STRING])
+                    print(("    Running command locally: " + config[COMMAND_STRING]))
                     cmd_output = self.util.run_os_command(config[COMMAND_STRING])
                     if config[HALT_ON_STRING]:
                         retval = False
                     if config[SHOW_CONSOLE_OUTPUT]:
-                        print("  Console Output: \n" + cmd_output)
+                        print(("  Console Output: \n" + cmd_output))
                 else:
                     new_retval, error_msg = self.run_command()
                     retval &= new_retval
@@ -149,7 +149,7 @@ class RunBatchCommandsWorker(BaseREOSSHWorker):
                     # this host and move on to the next
                     # TODO: ask user to retry the batch of commands on this host or not
                     if error_msg:
-                        print("  - Error: " + error_msg)
+                        print(("  - Error: " + error_msg))
                         break
         return retval
 

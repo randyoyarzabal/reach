@@ -1,11 +1,12 @@
 import logging
 import os
 import re
+import time
 
 import paramiko
 from paramiko.ssh_exception import *
 
-from REOUtility import REOUtility
+from .REOUtility import REOUtility
 
 
 class REORemoteHost(object):
@@ -127,7 +128,7 @@ class REORemoteHost(object):
         """
         self.connected = False
         if self.util.debug:
-            print ' '
+            print(' ')
         self.log(logging.DEBUG, "Connecting to: " + self.host, False)
         if u: self.usr = u
         if f: self.key_file = f
@@ -152,16 +153,22 @@ class REORemoteHost(object):
         self.log(logging.DEBUG, "User Name: " + self.usr, False)
 
         # Try agent authentication
-        self.connected = self.__connect("Trying agent authentication.", self.host, self.usr, timeout=conn_timeout,
-                                        allow_agent=True, look_for_keys=True)
+        self.connected = self.__connect("Trying agent (and default key) authentication.", self.host, self.usr,
+                                        timeout=conn_timeout,
+                                        allow_agent=True, look_for_keys=False)
 
         if not agent_only:
 
             # Try user-defined private-key authentication
             if not self.connected:
                 self.connected = self.__connect("Trying private key file: " + self.key_file, self.host, self.usr,
-                                                timeout=conn_timeout, private_key_file=self.key_file, password=self.pwd,
-                                                allow_agent=False, look_for_keys=False)
+                                                timeout=conn_timeout, private_key_file=self.key_file,
+                                                allow_agent=False, look_for_keys=True)
+                if self.key_file:
+                    self.log(logging.DEBUG, "Key File: " + self.key_file, False)
+                else:
+                    if self.connected:
+                        self.log(logging.DEBUG, "Used default id_rsa key.", False)
 
             # Try user/password authentication
             if not self.connected:
@@ -278,7 +285,7 @@ class REORemoteHost(object):
         output = ''
         while match is None:
             try:
-                output += self.shell.recv(1024)
+                output += self.shell.recv(1024).decode("utf-8")
                 match = re.search(self.original_prompt_regex, output)
             except KeyboardInterrupt:
                 self.util.key_interrupt()
@@ -286,7 +293,8 @@ class REORemoteHost(object):
                 self.shell.settimeout(self.cmd_timeout)
                 return False
             except:
-                self.util.print_stack()
+                return False
+                # self.util.print_stack()
         self.shell.settimeout(self.cmd_timeout)
         self.log(logging.DEBUG, "Detect initial prompt success", False)
         return True
@@ -304,7 +312,7 @@ class REORemoteHost(object):
         matches = []
         while len(matches) != 2:
             try:
-                output += self.shell.recv(1024)
+                output += str(self.shell.recv(2048))
                 matches = re.findall(self.new_prompt_regex[:-1], output)
             except KeyboardInterrupt:
                 self.util.key_interrupt()
@@ -353,14 +361,14 @@ class REORemoteHost(object):
             search_strings_display = '\'' + "\' or \'".join(search_strings) + '\''
 
             if self.str_vars_exist:
-                print ("  - Waiting for string(s): " + search_strings_display)
+                print(("  - Waiting for string(s): " + search_strings_display))
 
         if wait_string:
             wait_strings = wait_string.split(self.STRINGS_DELIMITER)
             wait_strings_display = '\'' + "\',\'".join(wait_strings) + '\''
             self.log(logging.DEBUG, "Wait String: " + wait_string, False)
             if self.str_vars_exist:
-                print ("    - Waiting for string(s) in sequence: " + wait_strings_display)
+                print(("    - Waiting for string(s) in sequence: " + wait_strings_display))
 
             if response_string:
                 response_strings = response_string.split(self.STRINGS_DELIMITER)
@@ -379,7 +387,7 @@ class REORemoteHost(object):
                                                                           REOUtility.decrypt_str(cipher_text.group(1),
                                                                                                  self.cipher_key))
                         response_display[i] = response_display[i].replace(cipher_text.group(0), '**********')
-            wait_response_pair = zip(wait_strings, response_strings, response_display)
+            wait_response_pair = list(zip(wait_strings, response_strings, response_display))
             if len(wait_response_pair) > 0:
                 will_wait_respond = True
 
@@ -399,7 +407,7 @@ class REORemoteHost(object):
             # Continuously read output lines until wait strings are found or timeout reached
             try:
                 self.log(logging.DEBUG, "Expected prompt regex: " + self.expected_prompt_regex, False)
-                self.console_output_buffer += self.shell.recv(1024)
+                self.console_output_buffer += self.shell.recv(1024).decode("utf-8")
                 if buffer_index == 0:
                     temp = self.console_output_buffer.replace(' \r', '').split(command, 1)
                     if len(temp) < 2:
@@ -419,7 +427,7 @@ class REORemoteHost(object):
                 if will_wait_respond:
                     # If wait_strings not all consumed and the shell timed out,
                     # it may mean that the wait strings are incorrect
-                    print ("  - Wait string(s) not found and command timeout. Timeout value: " + str(self.cmd_timeout))
+                    print(("  - Wait string(s) not found and command timeout. Timeout value: " + str(self.cmd_timeout)))
                     last_run_log.write("Not Found\n")
                 self.log(logging.ERROR, 'Command timeout. No more commands will be sent to this host.', False)
                 error_msg = 'Command timeout. No more commands will be sent to this host.'
@@ -442,9 +450,9 @@ class REORemoteHost(object):
                             rstring = response.strip()
 
                         self.log(logging.DEBUG, "Found wait key: " + wait, False)
-                        print ("    - Found \'" + wait + "\'")
+                        print(("    - Found \'" + wait + "\'"))
                         self.log(logging.DEBUG, "Sending response: " + rstring, False)
-                        print ("    - Sent response \'" + response_display + "\'")
+                        print(("    - Sent response \'" + response_display + "\'"))
 
                         if key_stroke_isfound:
                             self.shell.send(rstring)
@@ -469,7 +477,7 @@ class REORemoteHost(object):
                     break
             else:  # if for loop terminates without breaking (ie, no search_string found)
                 if self.NOT_FOUND_MARKER not in search_string:
-                    print ("  - Search string(s) " + search_strings_display + " not found.")
+                    print(("  - Search string(s) " + search_strings_display + " not found."))
                     last_run_log.write("Not Found: " + search_strings_display + "\n")
                 if self.NOT_FOUND_MARKER in search_string:
                     self.search_string_isfound = self.NOT_FOUND_MARKER
@@ -482,13 +490,13 @@ class REORemoteHost(object):
                 ["'" + pair[0] + "'" for pair in wait_response_pair if pair[0] in self.console_output_buffer])
             if keys_not_found != '':
                 self.log(logging.DEBUG, "Wait keys not found: " + keys_not_found, False)
-                print ("  - Wait strings not found: " + keys_not_found + "")
+                print(("  - Wait strings not found: " + keys_not_found + ""))
             if keys_found != '':
                 self.log(logging.DEBUG,
                          "Wait keys found but response not sent because prompt immediately returned: " + keys_found,
                          False)
-                print (
-                        "  - Wait strings found but response not sent because prompt immediately returned: " + keys_found + "")
+                print((
+                        "  - Wait strings found but response not sent because prompt immediately returned: " + keys_found + ""))
 
         if self.__detect_sudo(command):
             prompt_set, output = self.set_prompt()
@@ -527,7 +535,7 @@ class REORemoteHost(object):
         :return:
         """
         if print_to_screen:
-            print message
+            print(message)
         if self.util.debug and level == logging.DEBUG:
             self.util.print_debug(message)
         if self.logger:
