@@ -44,8 +44,8 @@ class Reach(REOScript):
         """Directory only of running script"""
 
         self.SCRIPT_NAME = os.path.basename(self.full_path)
-        self.SCRIPT_VERSION = 'v1.0.5 (GitHub - Development Branch)'
-        self.SCRIPT_DATE = '10-Jul-2020'
+        self.SCRIPT_VERSION = 'v1.0.6 (GitHub - Development Branch)'
+        self.SCRIPT_DATE = '19-Dec-2021'
         self.SCRIPT_DESCRIPTION = "Automation tool for executing remote commands on multiple devices/hosts via SSH."
         self.SCRIPT_SYNTAX_OR_INFO = "Git Repository: https://github.com/randyoyarzabal/reach"
         self.SCRIPT_HELP = "Help/usage: reach.py -?"
@@ -197,13 +197,15 @@ Tips:
         :return: None
         """
         # Required switch, only allow one of these
-        operations = [option for option in cli_config if option in EXCLUSIVE_OPTS]
+        operations = [
+            option for option in cli_config if option in EXCLUSIVE_OPTS]
 
         if len(operations) == 0:
             self.author(show_help=True)
             sys.exit(2)
         elif len(operations) > 1:
-            raise ValueError("One of these options is required: " + str(EXCLUSIVE_OPTS_KEYS) + " (but only one!)")
+            raise ValueError("One of these options is required: " +
+                             str(EXCLUSIVE_OPTS_KEYS) + " (but only one!)")
 
         config[OPERATION] = operations[0]
 
@@ -221,28 +223,35 @@ Tips:
 
         if config[OPERATION] == CIPHER:
             self.author()
-            input_pass = REOUtility.prompt_user_password(user_prompt=False, desc="Convert to cipher text ==>")
+            input_pass = REOUtility.prompt_user_password(
+                user_prompt=False, desc="Convert to cipher text ==>")
             print("\nWarning: this cipher text form is only useful in Reach.  It is by no means secure.\n"
                   "It is simply meant to conceal/obfuscate and prevent passwords from being displayed in clear-text.\n"
                   "It is useful in the SSH_PASSWORD_CIPHER config or as $CT=<cipher_text> with the -p option.\n")
             if config[CIPHER_KEY_FILE]:
-                print("The cipher-key file: %s was used. " % config[CIPHER_KEY_FILE])
-                cipher_key = REOUtility.get_string_from_file(config[CIPHER_KEY_FILE])
+                print("The cipher-key file: %s was used. " %
+                      config[CIPHER_KEY_FILE])
+                cipher_key = REOUtility.get_string_from_file(
+                    config[CIPHER_KEY_FILE])
             else:
-                print("Warning: using built-in cipher-key.  It is recommended to set 'CIPHER_KEY_FILE' config.")
+                print(
+                    "Warning: using built-in cipher-key.  It is recommended to set 'CIPHER_KEY_FILE' config.")
                 cipher_key = REOUtility.CIPHER_KEY
             print("Note that decryption of the text below will only work with the cipher key it is encrypted with.")
-            print("\nCipher text: '" + REOUtility.encrypt_str(input_pass[1], cipher_key) + "'")
+            print("\nCipher text: '" +
+                  REOUtility.encrypt_str(input_pass[1], cipher_key) + "'")
             sys.exit(0)
 
         if config[SSH_AGENT_ONLY]:
             if not config[SSH_USER_NAME]:
-                raise ValueError("'SSH_USER_NAME' must be set if 'SSH_AGENT_ONLY' is True")
+                raise ValueError(
+                    "'SSH_USER_NAME' must be set if 'SSH_AGENT_ONLY' is True")
 
         # Forbidden opts when using -b
         if config[OPERATION] == OPERATION_BATCH:
             conflicting_opts = set(BAD_BATCH_OPTS) & set(cli_config.keys())
-            conflicting_opts_keys = [SWITCH_VALUE[opt] for opt in conflicting_opts]
+            conflicting_opts_keys = [SWITCH_VALUE[opt]
+                                     for opt in conflicting_opts]
             if len(conflicting_opts) > 0:
                 raise ValueError("Option(s) " + ", ".join(
                     conflicting_opts_keys) + " not allowed in batch (-b) mode! Specify the option in the commands file.")
@@ -250,7 +259,8 @@ Tips:
         # Forbidden opts when using -a
         if config[OPERATION] == OPERATION_ACCESS:
             conflicting_opts = set(BAD_ACCESS_OPTS) & set(cli_config.keys())
-            conflicting_opts_keys = [SWITCH_VALUE[opt] for opt in conflicting_opts]
+            conflicting_opts_keys = [SWITCH_VALUE[opt]
+                                     for opt in conflicting_opts]
             if len(conflicting_opts) > 0:
                 raise ValueError("Option(s) " + ", ".join(
                     conflicting_opts_keys) + " not allowed in access (-a) mode!")
@@ -264,9 +274,11 @@ Tips:
         # Files existence detection
         # CONFIG_FILE already checked
         if COLUMN_VARIABLE in config[SSH_PRIVATE_KEY_FILE]:
-            keys_with_files = [BATCH_FILE, HOSTS_INVENTORY_FILE, CIPHER_KEY_FILE]
+            keys_with_files = [BATCH_FILE,
+                               HOSTS_INVENTORY_FILE, CIPHER_KEY_FILE]
         else:
-            keys_with_files = [BATCH_FILE, SSH_PRIVATE_KEY_FILE, HOSTS_INVENTORY_FILE, CIPHER_KEY_FILE]
+            keys_with_files = [BATCH_FILE, SSH_PRIVATE_KEY_FILE,
+                               HOSTS_INVENTORY_FILE, CIPHER_KEY_FILE]
         keys_with_files = [key for key in keys_with_files if config[key]]
         for file_key in keys_with_files:
             if not os.path.isfile(config[file_key]):
@@ -279,24 +291,28 @@ Tips:
                                  SWITCH_VALUE[IP_OR_HOST_COLUMN] + "'.")
 
         # Check hosts file
-        hosts_file = REODelimitedFile(config[HOSTS_INVENTORY_FILE], has_header=True)
+        hosts_file = REODelimitedFile(
+            config[HOSTS_INVENTORY_FILE], has_header=True)
         max_column = len(hosts_file.header_list)
 
         if config[IP_OR_HOST_COLUMN] not in hosts_file.header_list:
-            raise ValueError("Column '" + config[IP_OR_HOST_COLUMN] + "' cannot be found in hosts file.")
+            raise ValueError(
+                "Column '" + config[IP_OR_HOST_COLUMN] + "' cannot be found in hosts file.")
         if config[FILTER_STRING]:
             if STRINGS_MULTI_CONDITION in config[FILTER_STRING] and STRINGS_DELIMITER in config[FILTER_STRING]:
                 raise ValueError(
                     "Filter cannot contain both '" + STRINGS_MULTI_CONDITION + "' and '" + STRINGS_DELIMITER + "'")
             conditions = re.split("[" + STRINGS_MULTI_CONDITION + STRINGS_DELIMITER + "]",
                                   config[FILTER_STRING])
-            conditions = [{'cond': cond, 'splits': re.split("[~=!]", cond)} for cond in conditions]
+            conditions = [{'cond': cond, 'splits': re.split(
+                "[~=!]", cond)} for cond in conditions]
             for cond in conditions:
                 if len(cond['splits']) != 2:
                     raise ValueError(
                         "Filter '" + cond['cond'] + "' invalid, please specify '~', '=', or '!' for each filter.")
                 if cond['splits'][0] not in hosts_file.header_list:
-                    raise ValueError("Column '" + cond['splits'][0] + "' cannot be found in hosts file.")
+                    raise ValueError(
+                        "Column '" + cond['splits'][0] + "' cannot be found in hosts file.")
 
         del hosts_file
 
@@ -321,7 +337,8 @@ Tips:
         elif config[OPERATION] == OPERATION_COMMAND:
             temp = {}
             for var_name in BATCH_COMMANDS_COLUMN_ORDER:
-                temp[var_name] = str(config[var_name]).strip() if var_name in config else ''
+                temp[var_name] = str(config[var_name]).strip(
+                ) if var_name in config else ''
             commands.append(temp)
 
         # Check whether each command is valid
@@ -340,25 +357,25 @@ Tips:
 
             temp = {}
             temp[COMMAND_WAIT_STRING] = len(command[COMMAND_WAIT_STRING].split(STRINGS_DELIMITER)) if command[
-                                                                                                          COMMAND_WAIT_STRING] != '' else 0
+                COMMAND_WAIT_STRING] != '' else 0
             temp[COMMAND_SEND_STRING] = len(command[COMMAND_SEND_STRING].split(STRINGS_DELIMITER)) if command[
-                                                                                                          COMMAND_SEND_STRING] != '' else 0
+                COMMAND_SEND_STRING] != '' else 0
             temp[COMMAND_FIND_STRING] = len(command[COMMAND_FIND_STRING].split(STRINGS_DELIMITER)) if command[
-                                                                                                          COMMAND_FIND_STRING] != '' else 0
+                COMMAND_FIND_STRING] != '' else 0
             temp[COMMAND_REPORT_STRING] = len(command[COMMAND_REPORT_STRING].split(STRINGS_DELIMITER)) if command[
-                                                                                                              COMMAND_REPORT_STRING] != '' else 0
+                COMMAND_REPORT_STRING] != '' else 0
             if temp[COMMAND_WAIT_STRING] != temp[COMMAND_SEND_STRING]:
                 raise ValueError("Option '" + SWITCH_VALUE[
                     COMMAND_SEND_STRING] + "' must be used in conjunction with option '" +
-                                 SWITCH_VALUE[COMMAND_WAIT_STRING] + "' with the same length.")
+                    SWITCH_VALUE[COMMAND_WAIT_STRING] + "' with the same length.")
             if temp[COMMAND_REPORT_STRING] > 0 and temp[COMMAND_FIND_STRING] == 0:
                 raise ValueError("Option '" + SWITCH_VALUE[
                     COMMAND_REPORT_STRING] + "' cannot be used without option '" +
-                                 SWITCH_VALUE[COMMAND_FIND_STRING] + "'.")
+                    SWITCH_VALUE[COMMAND_FIND_STRING] + "'.")
             if temp[COMMAND_REPORT_STRING] > 0 and (temp[COMMAND_FIND_STRING] != temp[COMMAND_REPORT_STRING]):
                 raise ValueError("When option '" + SWITCH_VALUE[
                     COMMAND_REPORT_STRING] + "' is used in conjunction with option '" +
-                                 SWITCH_VALUE[COMMAND_FIND_STRING] + "', they must have the same length.")
+                    SWITCH_VALUE[COMMAND_FIND_STRING] + "', they must have the same length.")
             if command[HALT_ON_STRING].lower() in ['yes', 'true'] and command[COMMAND_FIND_STRING] == '':
                 raise ValueError(
                     "Option '" + SWITCH_VALUE[HALT_ON_STRING] + "' must be used in conjunction with option '" +
@@ -384,29 +401,35 @@ Tips:
         config[CONFIG_FILE] = self.dir_path + "/" + config[CONFIG_FILE]
 
         # Parse config file as defaults
-        config_file = cli_config[CONFIG_FILE] if (CONFIG_FILE in cli_config) else config[CONFIG_FILE]
+        config_file = cli_config[CONFIG_FILE] if (
+            CONFIG_FILE in cli_config) else config[CONFIG_FILE]
 
         if not os.path.isfile(config_file):
-            print(("Aborted...Config File defined: " + config_file + " doesn't exist."))
+            print(("Aborted...Config File defined: " +
+                  config_file + " doesn't exist."))
             sys.exit(1)
 
         # Override system defaults with user defaults
         self.main_config.read(config_file)
-        config_defaults = REOUtility.get_parser_config(CONFIG_SECTION, self.main_config)
+        config_defaults = REOUtility.get_parser_config(
+            CONFIG_SECTION, self.main_config)
         for conf in config_defaults:
             if conf in STRING_DEFAULTS:
 
                 defaults[conf] = self.main_config.get(CONFIG_SECTION, conf)
 
             elif conf in BOOLEAN_DEFAULTS:
-                defaults[conf] = self.main_config.getboolean(CONFIG_SECTION, conf)
+                defaults[conf] = self.main_config.getboolean(
+                    CONFIG_SECTION, conf)
 
             elif conf in NUMBER_DEFAULTS:
-                defaults[conf] = self.main_config.getfloat(CONFIG_SECTION, conf)
+                defaults[conf] = self.main_config.getfloat(
+                    CONFIG_SECTION, conf)
 
         # Prepend our current dir to default log directory if not defined by user
         if LOGS_DIRECTORY not in config_defaults:
-            defaults[LOGS_DIRECTORY] = self.dir_path + "/" + defaults[LOGS_DIRECTORY]
+            defaults[LOGS_DIRECTORY] = self.dir_path + \
+                "/" + defaults[LOGS_DIRECTORY]
 
         # Apply system defaults
         set_defaults()
@@ -424,7 +447,8 @@ Tips:
                 os.makedirs(os.path.dirname(config[LOGS_DIRECTORY]))
             except OSError as exc:  # Guard against race condition
                 if exc.errno != errno.EEXIST:
-                    print("Unable to create log directory defined: " + config[LOGS_DIRECTORY])
+                    print("Unable to create log directory defined: " +
+                          config[LOGS_DIRECTORY])
                     sys.exit(1)
 
         # Set logging file and level
@@ -445,17 +469,23 @@ Tips:
         self.author()
 
         if config[OPERATION] == OPERATION_ACCESS:
-            print(("== | Operation: Access Check" + self.get_simulation_str() + " | ==\n"))
+            print(("== | Operation: Access Check" +
+                  self.get_simulation_str() + " | ==\n"))
             self.log(logging.INFO, "Access Mode Started", False)
             self.sshworker = CheckAccessWorker(logger=self.logger)
-            self.sshworker.SHOW_HOST_DURATION = False  # Force to false, this is never needed in this mode
+            # Force to false, this is never needed in this mode
+            self.sshworker.SHOW_HOST_DURATION = False
         if config[OPERATION] == OPERATION_BATCH:
-            print(("== | Operation: Run Batch Commands from File" + self.get_simulation_str() + " | ==\n"))
-            self.sshworker = RunBatchCommandsWorker(config[BATCH_FILE], logger=self.logger)
+            print(("== | Operation: Run Batch Commands from File" +
+                  self.get_simulation_str() + " | ==\n"))
+            self.sshworker = RunBatchCommandsWorker(
+                config[BATCH_FILE], logger=self.logger)
             self.log(logging.INFO, "Batch Mode Started", False)
-            self.log(logging.INFO, "Processing batch file: " + config[BATCH_FILE], False)
+            self.log(logging.INFO, "Processing batch file: " +
+                     config[BATCH_FILE], False)
         if config[OPERATION] == OPERATION_COMMAND:
-            print(("== | Operation: Run Command" + self.get_simulation_str() + " | ==\n"))
+            print(("== | Operation: Run Command" +
+                  self.get_simulation_str() + " | ==\n"))
             self.log(logging.INFO, "Command Mode Started", False)
             self.sshworker = RunCommandWorker(logger=self.logger)
             self.sshworker.str_vars_exist = check_for_vars()

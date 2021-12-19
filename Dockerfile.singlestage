@@ -1,0 +1,17 @@
+# HOW TO USE THIS FILE
+# ** See Dockerfile **
+
+FROM python:3.9-slim
+ENV REACH_PATH="/reach"
+
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends build-essential gcc
+
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$REACH_PATH:$PATH"
+
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+RUN mkdir $REACH_PATH
+WORKDIR $REACH_PATH

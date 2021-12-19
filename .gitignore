@@ -1,6 +1,7 @@
 # OSX and IDE related
 .DS_Store
 .idea
+.vscode
 
 # Project releated
 logs

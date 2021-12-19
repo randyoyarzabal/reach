@@ -1,0 +1,30 @@
+# ** For Development Purposes Only **
+
+# This is a multi-stage build file that significantly minimizes the container image size.
+
+# Stage 1
+FROM python:3.9-slim AS compile-image
+
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends build-essential gcc
+
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+COPY requirements.txt .
+RUN python -m pip install --upgrade pip setuptools wheel;
+
+# Ignore versions
+# RUN cat requirements.txt | cut -d'=' -f 1 | xargs pip install --upgrade;
+
+# Adhere to versions defined.
+RUN pip install -r requirements.txt
+
+# Stage 2
+FROM python:3.9-slim AS build-image
+COPY --from=compile-image /opt/venv /opt/venv
+ENV REACH_PATH="/reach"
+ENV PATH="/opt/venv/bin:$REACH_PATH:$PATH"
+
+RUN mkdir $REACH_PATH
+WORKDIR $REACH_PATH

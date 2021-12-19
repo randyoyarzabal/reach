@@ -2,6 +2,10 @@ Git Repo: https://github.com/randyoyarzabal/reach
 
 Legend: + : added, - : removed, * : fixed, = : modified
 
+v1.0.6 [19-12-2021]
+- Updated repo to support running as a container
+- Streamlined optional reach BASH library
+
 v1.0.5 [24-01-2020] - Pre Release
 - Updated to work for Python 3 (tested on Python 3.8)
 - Updated to replace pycrypto dependency for pycryptodome
